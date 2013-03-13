@@ -22,15 +22,55 @@ class Node {
   double   bw;
   double   lat;
 
+#if defined(GENERIC)
+  public:
+  //
+  // Students will WRITE THESE
+  //
+  virtual void LinkHasBeenUpdated(const Link *l);
+  virtual void ProcessIncomingRoutingMessage(const RoutingMessage *m);
+  virtual void TimeOut();
+  virtual Node *GetNextHop(const Node *destination);
+  virtual Table *GetRoutingTable() const;
+
+  virtual ostream & Print(ostream &os) const;
+#endif
+
 #if defined(LINKSTATE)
+  public:
+  //
+  // Students will WRITE THESE
+  //
+  virtual void LinkHasBeenUpdated(const Link *l);
+  virtual void ProcessIncomingRoutingMessage(const RoutingMessage *m);
+  virtual void TimeOut();
+  virtual Node *GetNextHop(const Node *destination);
+  virtual Table *GetRoutingTable() const;
+
+  virtual ostream & Print(ostream &os) const;
 #endif
 
 #if defined(DISTANCEVECTOR)
-#endif
-
-  // students will add protocol-specific data here
+// students will add protocol-specific data here
   private:
   Table *thisNodeTable;
+
+  public:
+  virtual void setTable (Table *tbl);
+  //
+  // Students will WRITE THESE
+  //
+  virtual void LinkHasBeenUpdated(const Link *l);
+  virtual void ProcessIncomingRoutingMessage(const RoutingMessage *m);
+  virtual void TimeOut();
+  virtual Node *GetNextHop(const Node *destination);
+  virtual Table *GetRoutingTable() const;
+
+  virtual ostream & Print(ostream &os) const;
+
+#endif
+
+
 
  public:
   Node(const unsigned n, SimulationContext *c, double b, double l);
@@ -54,18 +94,9 @@ class Node {
   virtual deque<Node*> *GetNeighbors();
   virtual void SetTimeOut(const double timefromnow);
 
-  virtual void setTable (Table *tbl);
 
-  //
-  // Students will WRITE THESE
-  //
-  virtual void LinkHasBeenUpdated(const Link *l);
-  virtual void ProcessIncomingRoutingMessage(const RoutingMessage *m);
-  virtual void TimeOut();
-  virtual Node *GetNextHop(const Node *destination) const;
-  virtual Table *GetRoutingTable() const;
 
-  virtual ostream & Print(ostream &os) const;
+
 
 };
 

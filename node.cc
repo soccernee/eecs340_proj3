@@ -90,16 +90,16 @@ void Node::TimeOut()
   cerr << *this << " got a timeout: ignored"<<endl;
 }
 
-Node *Node::GetNextHop(const Node *destination) const
+Node *Node::GetNextHop(const Node *destination)
 {
-    cerr << "[GENERIC]  ";
+    cerr << "[GENERIC]  GetNextHop" << endl;
+
   return 0;
 }
 
 Table *Node::GetRoutingTable() const
 {
-    cerr << "[GENERIC]  ";
-    cerr << "GetRoutingTable called" << endl;
+    cerr << "[GENERIC]  GetRoutingTable called" << endl;
   return new Table;
 }
 
@@ -156,6 +156,7 @@ ostream & Node::Print(ostream &os) const
 #if defined(DISTANCEVECTOR)
 
 void Node::setTable (Table *tbl) {
+    cerr << "Set Table" << endl;
     thisNodeTable = tbl;
 }
 
@@ -178,28 +179,28 @@ void Node::TimeOut()
 }
 
 
-Node *Node::GetNextHop(const Node *destination) const
+Node *Node::GetNextHop(const Node *destination)
 {
     unsigned nodeNum = destination->GetNumber();
     unsigned nextNode = thisNodeTable->getNodePath(nodeNum);
     //now that we know the nextHop node number, we must find that node
-    deque<Node*> neighbors = GetNeighbors();
-    for (deque<Node*>::iterator iter = neighbors.begin(); iter != neighbors.end(); iter++) {
-        if ((**iter).number == nextNode) {
+    deque<Node*> *neighbors = GetNeighbors();
+    for (deque<Node*>::iterator iter = neighbors->begin(); iter != neighbors->end(); iter++) {
+        if ((**iter).GetNumber() == nextNode) {
+            cerr << "GetNextHop: next node = " << **iter << endl;
             return *iter;
         }
     }
     //note we should never get down here
     cerr << "Trouble. GetNextHop did not find the shortest path to the next hop and, by default, identifies the first neighbor as the shortest path." << endl;
-    return *neighbors.begin();
+    return *neighbors->begin();
 }
 
 Table *Node::GetRoutingTable() const
 {
-    //TODO; Write this function
-
-    //filler code below
-    return thisNodeTable;
+    Table *tempTable = thisNodeTable;
+    cerr << "GetRoutingTable: \n" << tempTable << endl;
+    return tempTable;
 }
 
 

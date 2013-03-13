@@ -21,6 +21,12 @@ ostream & Table::Print(ostream &os) const
 
 #if defined(DISTANCEVECTOR)
 
+Table::Table() {
+    vector<double> tempVector(1);
+    tempVector[0] = 0;
+    updateVector(0,tempVector);
+}
+
  void Table::setVector(vector<vector<double> > thisVector) {
     nodeTotalVector = thisVector;
  }

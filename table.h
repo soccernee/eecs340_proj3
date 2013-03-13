@@ -42,6 +42,7 @@ class Table {
 vector<vector<double> > nodeTotalVector;
 
  public:
+ Table();
  void setVector(vector<vector<double> > thisVector);
  void updateVector(int vectorNumber, vector<double> thisNodeVector);
  vector<vector<double> > getVector();
