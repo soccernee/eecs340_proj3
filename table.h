@@ -3,8 +3,13 @@
 
 
 #include <iostream>
+#include <stdlib.h>
 
 using namespace std;
+
+
+
+
 
 #if defined(GENERIC)
 class Table {
@@ -26,11 +31,22 @@ class Table {
 
 #if defined(DISTANCEVECTOR)
 
+#include "node.h"
+#include "link.h"
 #include <deque>
+#include <vector>
+#include <iterator>
 
 class Table {
+
+vector<vector<double> > nodeTotalVector;
+
  public:
-  ostream & Print(ostream &os) const;
+ void setVector(vector<vector<double> > thisVector);
+ void updateVector(int vectorNumber, vector<double> thisNodeVector);
+ vector<vector<double> > getVector();
+ unsigned getNodePath(unsigned destNode);
+ ostream & Print(ostream &os) const;
 };
 #endif
 

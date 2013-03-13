@@ -29,6 +29,8 @@ class Node {
 #endif
 
   // students will add protocol-specific data here
+  private:
+  Table *thisNodeTable;
 
  public:
   Node(const unsigned n, SimulationContext *c, double b, double l);
@@ -51,6 +53,8 @@ class Node {
   virtual void SendToNeighbor(const Node *n, const RoutingMessage *m);
   virtual deque<Node*> *GetNeighbors();
   virtual void SetTimeOut(const double timefromnow);
+
+  virtual void setTable (Table *tbl);
 
   //
   // Students will WRITE THESE
