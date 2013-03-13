@@ -22,35 +22,42 @@ ostream & Table::Print(ostream &os) const
 #if defined(DISTANCEVECTOR)
 
 Table::Table() {
-    vector<double> tempVector(1);
-    tempVector[0] = 0;
-    updateVector(0,tempVector);
+    cerr << "table constructor" << endl;
 }
 
- void Table::setVector(vector<vector<double> > thisVector) {
-    nodeTotalVector = thisVector;
+void Table::tableInit() {
+    cerr << "table init" << endl;
+    //nodeTotalMap.insert (std::pair<unsigned,double>(0,7));
+}
+
+ void Table::setMap(map<unsigned, map<unsigned,double> > thisMap) {
+    nodeTotalMap = thisMap;
  }
 
- void Table::updateVector(int vectorNumber, vector<double> thisNodeVector){
-    nodeTotalVector[vectorNumber] = thisNodeVector;
+ void Table::updateMap(unsigned mapNumber, map<unsigned,double> thisNodeMap){
+    cerr << "Table: updateVector" << endl;
+    nodeTotalMap.insert(pair<unsigned,map<unsigned,double> > (mapNumber, thisNodeMap));
+    cerr << "done with UpdateVector" << endl;
  }
 
- vector<vector<double> > Table::getVector(){
-    vector<vector<double> > tempVector = nodeTotalVector;
-    return tempVector;
+ map<unsigned, map<unsigned,double> > Table::getMap(){
+    map<unsigned, map<unsigned,double> > tempMap = nodeTotalMap;
+    return tempMap;
  }
 
  unsigned Table::getNodePath(unsigned destNode) {
     unsigned nextNode = 0;
-    int shortPath = 10000000;
-    int i = 0;
-    for (vector<vector<double> >::iterator iter = nodeTotalVector.begin(); iter != nodeTotalVector.end(); iter++) {
-        if ((*iter)[destNode] < shortPath) {
-            nextNode = i;
-            shortPath = (*iter)[destNode];
+    cerr << "Get Node Path" << endl;
+    double shortPath = 100000; //needs to be replaced with infinity
+    for ( map<unsigned, map<unsigned,double> >::iterator iter = nodeTotalMap.begin(); iter != nodeTotalMap.end(); iter++) {
+        cerr << "inside first loop" << endl;
+
+        if ((iter->second.find(destNode))->second < shortPath) {
+            nextNode = iter->first;
+            shortPath = (iter->second.find(destNode))->second;
         }
-        i++;
     }
+
     cerr << "nextNode = " << nextNode << endl;;
     return nextNode;
  }

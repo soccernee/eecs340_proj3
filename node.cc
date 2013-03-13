@@ -5,7 +5,13 @@
 
 Node::Node(const unsigned n, SimulationContext *c, double b, double l) :
     number(n), context(c), bw(b), lat(l)
-{}
+{
+    cerr << "Node init" << endl;
+
+    #if defined(DISTANCEVECTOR)
+    thisNodeTable->tableInit();
+    #endif
+}
 
 Node::Node()
 { throw GeneralException(); }
@@ -70,23 +76,23 @@ bool Node::Matches(const Node &rhs) const
 #if defined(GENERIC)
 void Node::LinkHasBeenUpdated(const Link *l)
 {
-    cerr << "[GENERIC]  ";
-  cerr << *this << " got a link update: "<<*l<<endl;
+    cerr << "[GENERIC]  linkhasBeenUpdated";
+  //cerr << *this << " got a link update: "<<*l<<endl;
   //Do Something generic:
-  SendToNeighbors(new RoutingMessage);
+  //SendToNeighbors(new RoutingMessage);
 }
 
 
 void Node::ProcessIncomingRoutingMessage(const RoutingMessage *m)
 {
-    cerr << "[GENERIC]  ";
+    cerr << "[GENERIC]  processIncomingRoutingMessage  ";
   cerr << *this << " got a routing messagee: "<<*m<<" Ignored "<<endl;
 }
 
 
 void Node::TimeOut()
 {
-    cerr << "[GENERIC]  ";
+    cerr << "[GENERIC]  timeOut";
   cerr << *this << " got a timeout: ignored"<<endl;
 }
 
@@ -181,8 +187,11 @@ void Node::TimeOut()
 
 Node *Node::GetNextHop(const Node *destination)
 {
+    cerr << "[DISTANCEVECTOR] GetNextHop" << endl;
     unsigned nodeNum = destination->GetNumber();
+    cerr << "destination node = " << nodeNum << endl;
     unsigned nextNode = thisNodeTable->getNodePath(nodeNum);
+    cerr << "Found out nextNode number" << endl;
     //now that we know the nextHop node number, we must find that node
     deque<Node*> *neighbors = GetNeighbors();
     for (deque<Node*>::iterator iter = neighbors->begin(); iter != neighbors->end(); iter++) {

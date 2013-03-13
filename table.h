@@ -34,18 +34,19 @@ class Table {
 #include "node.h"
 #include "link.h"
 #include <deque>
-#include <vector>
+#include <map>
 #include <iterator>
 
 class Table {
 
-vector<vector<double> > nodeTotalVector;
+ map<unsigned, map<unsigned,double> > nodeTotalMap;
 
  public:
  Table();
- void setVector(vector<vector<double> > thisVector);
- void updateVector(int vectorNumber, vector<double> thisNodeVector);
- vector<vector<double> > getVector();
+ void tableInit();
+ void setMap(map<unsigned, map<unsigned,double> > thisMap);
+ void updateMap(unsigned mapNumber, map<unsigned,double> thisNodeMap);
+ map<unsigned, map<unsigned,double> > getMap();
  unsigned getNodePath(unsigned destNode);
  ostream & Print(ostream &os) const;
 };
