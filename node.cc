@@ -9,7 +9,7 @@ Node::Node(const unsigned n, SimulationContext *c, double b, double l) :
     cerr << "Node init" << endl;
 
     #if defined(DISTANCEVECTOR)
-    thisNodeTable->tableInit();
+    thisNodeTable->tableInit(number);
     #endif
 }
 
@@ -175,13 +175,17 @@ void Node::setTable (Table *tbl) {
 
 void Node::LinkHasBeenUpdated(const Link *l)
 {
-  thisNodeTable->updateSingleEntry(number, l->GetDest, l->GetLatency());
-  sendRoutingUpdate();
+  cerr << "Updating link " << *l << endl;
+  bool isLinkChanged = thisNodeTable->updateSingleEntry(number, l->GetDest, l->GetLatency());
+  thisNodeTable->addRowIfNotExists(l->GetDest);
+  if(isLinkChanged) {
+    sendRoutingUpdate();
+  }
+
 }
 
 
-void Node::ProcessIncomingRoutingMessage(const RoutingMessage *m)
-{
+void Node::ProcessIncomingRoutingMessage(const RoutingMessage *m) {
     boolean updated = thisNodeTable->updateMap(m->sourceNodeNumber, m->newTableRow);
     if(updated) {
       sendRoutingUpdate();

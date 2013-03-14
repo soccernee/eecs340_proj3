@@ -40,16 +40,18 @@ class Table {
 
 class Table {
 
- map<unsigned, map<unsigned,double> > nodeTotalMap;
+ map<unsigned, map<unsigned,double>> nodeTotalMap;
+ map<unsigned, double> forwardingTable;
+
+ unsigned thisNodeNumber;
 
  public:
  Table();
- void tableInit();
- void setMap(map<unsigned, map<unsigned,double> > thisMap);
- void getRow(unsigned rowNumber);
- void updateMap(unsigned mapNumber, map<unsigned,double> thisNodeMap);
+ void tableInit(unsigned nodeNumber);
  void updateSingleEntry(unsigned neighborNumber, unsigned nodeNumber, double newValue);
- map<unsigned, map<unsigned,double> > getMap();
+ bool updateMap(unsigned mapNumber, map<unsigned,double> nodeMap);
+ bool updateVectorsThroughNeighbor(unsigned neighborNumber);
+ void addRowIfNotExists(unsigned rowNumber);
  unsigned getNodePath(unsigned destNode);
  ostream & Print(ostream &os) const;
 };
