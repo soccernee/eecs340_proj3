@@ -187,7 +187,7 @@ void Node::LinkHasBeenUpdated(const Link *l)
 
 
 void Node::ProcessIncomingRoutingMessage(const RoutingMessage *m) {
-    boolean updated = thisNodeTable->updateMap(m->sourceNodeNumber, m->newTableRow);
+    bool updated = thisNodeTable->updateMap(m->sourceNodeNumber, m->newTableRow);
     if(updated) {
       sendRoutingUpdate();
     }
