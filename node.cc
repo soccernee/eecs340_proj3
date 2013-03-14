@@ -49,7 +49,7 @@ Node::~Node()
 // so that the corresponding node can recieve the ROUTING_MESSAGE_ARRIVAL event at the proper time
 void Node::SendToNeighbors(const RoutingMessage *m) {
   deque<Node *> * neighbors = GetNeighbors();
-  for(deque<Node *>::iterator i = neighbors.begin(); i != neighbors.end(); i++) {
+  for(deque<Node *>::iterator i = neighbors->begin(); i != neighbors->end(); i++) {
     SendToNeighbor(*i, m);
   }
 }
