@@ -14,7 +14,16 @@ ostream &RoutingMessage::Print(ostream &os) const
 
 ostream &RoutingMessage::Print(ostream &os) const
 {
-  return os;
+    os << "Routing message from node " << sourceNodeNumber << endl;
+    for (map<unsigned, map<unsigned,double> >::const_iterator i = costTable.begin(); i != costTable.end(); i++) {
+        os << i->first << ": ";
+        for (map<unsigned,double>::const_iterator j = i->second.begin(); j != i->second.end(); j++) {
+            os << j->first << "(" << j->second << ") ";
+        }
+        os << endl;
+    }
+
+    return os;
 }
 
 RoutingMessage::RoutingMessage()
@@ -22,8 +31,17 @@ RoutingMessage::RoutingMessage()
 
 
 RoutingMessage::RoutingMessage(const RoutingMessage &rhs) {
-
+    sourceNodeNumber = rhs.sourceNodeNumber;
+    costTable = rhs.costTable;
 }
+
+RoutingMessage::RoutingMessage(unsigned sourceNodeNumber, map<unsigned, map<unsigned,double> > costTable) {
+    this->sourceNodeNumber = sourceNodeNumber;
+    this->costTable = costTable;
+}
+
+
+
 
 #endif
 
@@ -32,7 +50,7 @@ RoutingMessage::RoutingMessage(const RoutingMessage &rhs) {
 
 ostream &RoutingMessage::Print(ostream &os) const
 {
-  os << "Routing message from node " << sourceNodeNumber;
+  os << "Routing message from node " << sourceNodeNumber << endl;
   for(map<unsigned, double>::const_iterator i = newTableRow.begin(); i != newTableRow.end(); i++) {
     os << " DestNode" << i->first << ": " << i->second << ";";
   }

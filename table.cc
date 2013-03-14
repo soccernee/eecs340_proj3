@@ -11,10 +11,101 @@ ostream & Table::Print(ostream &os) const
 
 #if defined(LINKSTATE)
 
+ostream & DistancePrevNode::Print(ostream &os) const {
+    os << "" << distance << ":p(" << prevNode << ")";
+    return os;
+}
+
+Table::Table(unsigned nodeNumber) {
+    cerr << "table constructor" << endl;
+
+    map<unsigned,double> initMap;
+    initMap.insert(make_pair(nodeNumber,0.0));
+    connectionsLinks.insert(make_pair(nodeNumber, initMap));
+    thisNodeNumber = nodeNumber;
+}
+
+void Table::updateMap (unsigned neighborNode, map<unsigned,map<unsigned,double> >connectionsLinksFromNeighbor) {
+    cerr << "Table: update from neighbors links" << endl;
+
+        cerr << "Received connectionsLinkFromNeighbor from node: " << neighborNode << endl;
+        for (map<unsigned, map<unsigned,double> >::iterator iter = connectionsLinksFromNeighbor.begin(); iter!= connectionsLinksFromNeighbor.end(); iter++ ) {
+
+            map<unsigned, map<unsigned,double> >::iterator iterMyConnections = connectionsLinks.find(iter->first);
+
+            allNodesInNetwork.insert(iter->first);
+
+            if (iterMyConnections == connectionsLinks.end()) {
+                //add this row to the table
+                cerr << "at node:" << thisNodeNumber <<  "adding new row to table for node " << iter->first<< endl;
+                connectionsLinks.insert(make_pair(iter->first, iter->second));
+            }
+            else {
+                //update table with new links
+                cerr << "at node:" << thisNodeNumber <<  "updating row to table for node " << iter->first<< endl;
+                connectionsLinks.erase(iter->first);
+                connectionsLinks.insert(make_pair(iter->first, iter->second));
+
+            }//end else
+        }//end for loop
+}//end function
+
+void Table::updateLinkCost(unsigned neighborNumber, double linkCost) {
+    cerr << "Function call to updateLinkCost; cost to node " << neighborNumber << "=" << linkCost << endl;
+    if (connectionsLinks.find(thisNodeNumber)->second.find(neighborNumber) == connectionsLinks.find(thisNodeNumber)->second.end()) {
+        //this is a new link
+        cerr << "this is a new link" << endl;
+        allNodesInNetwork.insert(neighborNumber);
+        connectionsLinks.find(thisNodeNumber)->second.insert(make_pair(neighborNumber,linkCost));
+    }
+    else {
+        //update preexisting link
+        cerr << "preexisting link" << endl;
+        connectionsLinks.find(thisNodeNumber)->second.find(neighborNumber)->second = linkCost;
+    }
+
+    cerr << *this << endl;
+}
+
+void Table::performDijkstraAlgorithm() {
+
+    std::copy(allNodesInNetwork.begin(), allNodesInNetwork.end(),std::inserter( uncalculatedNodes, uncalculatedNodes.begin() ) );
+
+
+
+
+    cerr << *this << endl;
+}
+
+map<unsigned, map<unsigned,double> > Table::getConnectionsLinks() {
+    return connectionsLinks;
+}
+
+
 ostream & Table::Print(ostream &os) const
 {
   // WRITE THIS
-  os << "Table()";
+  os << endl << endl;
+  os << "TABLES FOR NODE " << thisNodeNumber << endl;
+  os << "==========Connection Costs Table==============" << endl;
+  for ( map<unsigned, map<unsigned,double> >::const_iterator iter = connectionsLinks.begin(); iter != connectionsLinks.end(); iter++) {
+        os << "Neighbor: " << (iter->first) << " ==   ";
+        for (map<unsigned,double>::const_iterator looper = iter->second.begin(); looper != iter->second.end();looper++) {
+            os << (looper->first) << "=>" << (looper->second) << "   ";
+        }
+        os << endl;
+  }
+
+   os << "===========Routing Table============" << endl;
+  for (map<unsigned, DistancePrevNode>::const_iterator routingTableIter = routingTable.begin(); routingTableIter != routingTable.end(); routingTableIter++) {
+        os << "Node: " << routingTableIter->first << "\t Distance(previousNode): " << routingTableIter->second << endl;
+  }
+
+   os << "===========Forwarding Table============" << endl;
+  for (map<unsigned, unsigned>::const_iterator forwardingTableIter = forwardingTable.begin(); forwardingTableIter != forwardingTable.end(); forwardingTableIter++) {
+        os << "Dest Node: " << forwardingTableIter->first << "\t Neighbor Node: " << forwardingTableIter->second << endl;
+  }
+
   return os;
 }
 #endif

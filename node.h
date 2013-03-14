@@ -37,6 +37,11 @@ class Node {
 #endif
 
 #if defined(LINKSTATE)
+
+  private:
+  Table *thisNodeTable;
+  virtual void sendRoutingUpdate();
+
   public:
   //
   // Students will WRITE THESE
@@ -54,7 +59,7 @@ class Node {
 // students will add protocol-specific data here
   private:
   Table *thisNodeTable;
-  virtual void sendRoutingUpdate() ;
+  virtual void sendRoutingUpdate();
 
   public:
   virtual void setTable (Table *tbl);

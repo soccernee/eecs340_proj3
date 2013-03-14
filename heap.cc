@@ -18,7 +18,7 @@ operator< for comparisons.
 //Note that you only need the pragma statement if you compile
 //this on Windows.
 
-#pragma warning(disable: 4786)
+//#pragma warning(disable: 4786)
 
 #include <iostream>
 #include <algorithm>

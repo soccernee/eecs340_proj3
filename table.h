@@ -23,11 +23,47 @@ class Table {
 
 
 #if defined(LINKSTATE)
+
+#include "node.h"
+#include "link.h"
+#include <deque>
+#include <map>
+#include <set>
+#include <iterator>
+
+struct DistancePrevNode {
+    double distance;
+    unsigned prevNode;
+
+    ostream & Print(ostream &os) const;
+};
+
 class Table {
   // Students should write this class
- public:
+  private:
+
+  map<unsigned, map<unsigned,double> > connectionsLinks;
+  map<unsigned, DistancePrevNode>routingTable;
+  map<unsigned, unsigned> forwardingTable;
+
+  set<unsigned> allNodesInNetwork;
+  set<unsigned> distanceCalculatedNodes;
+  set<unsigned> uncalculatedNodes;
+
+  unsigned thisNodeNumber;
+
+  public:
+  Table(unsigned nodeNumber);
+  void updateMap (unsigned neighborNode, map<unsigned,map<unsigned,double> >connectionsLinksFromNeighbor);
+  void updateLinkCost(unsigned neighborNumber, double linkCost);
+  void performDijkstraAlgorithm();
+  map<unsigned, map<unsigned,double> > getConnectionsLinks();
+  unsigned getNodePath(unsigned destNode);
+
   ostream & Print(ostream &os) const;
 };
+
+inline ostream & operator<<(ostream &os, const DistancePrevNode &m) { return m.Print(os);}
 #endif
 
 #if defined(DISTANCEVECTOR)

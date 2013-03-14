@@ -14,6 +14,10 @@ Node::Node(const unsigned n, SimulationContext *c, double b, double l) :
     }
 
 
+    #if defined(LINKSTATE)
+    thisNodeTable = new Table(number);
+    #endif
+
     #if defined(DISTANCEVECTOR)
     thisNodeTable = new Table(number);
     #endif
@@ -147,14 +151,20 @@ ostream & Node::Print(ostream &os) const
 
 void Node::LinkHasBeenUpdated(const Link *l)
 {
-
-  cerr << *this<<": Link Update: "<<*l<<endl;
+    cerr << "Link updated in node " << number << "\t link: " << *l << endl;
+    thisNodeTable->updateLinkCost(l->GetDest(), l->GetLatency());
+    thisNodeTable->performDijkstraAlgorithm();
+    sendRoutingUpdate();
 }
 
 
 void Node::ProcessIncomingRoutingMessage(const RoutingMessage *m)
 {
-  cerr << *this << " Routing Message: "<<*m;
+  cerr << "Procesing incoming routing message in node " << number << " from node " << m->sourceNodeNumber << endl;
+  cerr << "routing message:" << *m << endl;
+
+  thisNodeTable->updateMap(m->sourceNodeNumber, m->costTable);
+  thisNodeTable->performDijkstraAlgorithm();
 }
 
 void Node::TimeOut()
@@ -162,7 +172,7 @@ void Node::TimeOut()
   cerr << *this << " got a timeout: ignored"<<endl;
 }
 
-Node *Node::GetNextHop(const Node *destination) const
+Node *Node::GetNextHop(const Node *destination)
 {
   // WRITE
   return 0;
@@ -170,8 +180,15 @@ Node *Node::GetNextHop(const Node *destination) const
 
 Table *Node::GetRoutingTable() const
 {
-  // WRITE
-  return 0;
+    Table *tempTable = thisNodeTable;
+    cerr << "GetRoutingTable: \n" << tempTable << endl;
+    return tempTable;
+}
+
+void Node::sendRoutingUpdate() {
+      cerr << "Sending routing update from node " << number << endl;
+      RoutingMessage * message = new RoutingMessage(number, thisNodeTable->getConnectionsLinks());
+      SendToNeighbors(message);
 }
 
 
@@ -249,7 +266,7 @@ void Node::sendRoutingUpdate()  {
 
 ostream & Node::Print(ostream &os) const
 {
-  os << "Node(number="<<number<<", lat="<<lat<<", bw="<<bw;
+  os << "Node(number="<<number<<", lat="<<lat<<", bw="<<bw << ")";
   return os;
 }
 #endif

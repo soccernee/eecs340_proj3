@@ -5,6 +5,7 @@
 
 #include "node.h"
 #include "link.h"
+#include <map>
 
 #if defined(GENERIC)
 struct RoutingMessage {
@@ -19,6 +20,10 @@ struct RoutingMessage {
   RoutingMessage();
   RoutingMessage(const RoutingMessage &rhs);
   RoutingMessage &operator=(const RoutingMessage &rhs);
+  RoutingMessage(unsigned sourceNodeNumber, map<unsigned, map<unsigned,double> > costTable);
+
+  unsigned sourceNodeNumber;
+  map<unsigned, map<unsigned,double> >costTable;
 
   ostream & Print(ostream &os) const;
 };
