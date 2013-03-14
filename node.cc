@@ -6,7 +6,7 @@
 Node::Node(const unsigned n, SimulationContext *c, double b, double l) :
     number(n), context(c), bw(b), lat(l)
 {
-    cerr << "Creating node " << number << endl;
+    cerr << "Creating node " << number << " with context " << context << endl;
 
     #if defined(DISTANCEVECTOR)
     thisNodeTable = new Table(number);
@@ -21,6 +21,7 @@ Node::Node(const Node &rhs) :
 
 Node & Node::operator=(const Node &rhs)
 {
+   cerr << "why is this here?" << endl;
   return *(new(this)Node(rhs));
 }
 
@@ -48,13 +49,17 @@ Node::~Node()
 // Implement these functions  to post an event to the event queue in the event simulator
 // so that the corresponding node can recieve the ROUTING_MESSAGE_ARRIVAL event at the proper time
 void Node::SendToNeighbors( RoutingMessage *m) {
+    cerr <<  "SendToNeighbors [all of them]" << endl;
   deque<Node *> * neighbors = GetNeighbors();
+  cerr << "after getNeighbors returns" << endl;
   for(deque<Node *>::iterator i = neighbors->begin(); i != neighbors->end(); i++) {
     SendToNeighbor(*i, m);
   }
 }
 
 void Node::SendToNeighbor( Node *n,  RoutingMessage *m) {
+
+    cerr << "SendToNeighbor" << endl;
   Link toMatch;
   toMatch.SetSrc(number);
   toMatch.SetDest(n->GetNumber());
@@ -65,6 +70,7 @@ void Node::SendToNeighbor( Node *n,  RoutingMessage *m) {
 
 deque<Node*> *Node::GetNeighbors()
 {
+    cerr << "GetNeighbors" << endl;
   return context->GetNeighbors(this);
 }
 
