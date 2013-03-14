@@ -54,6 +54,7 @@ class Node {
 // students will add protocol-specific data here
   private:
   Table *thisNodeTable;
+  virtual void sendRoutingUpdate() const;
 
   public:
   virtual void setTable (Table *tbl);

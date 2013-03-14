@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <stdlib.h>
+#include <limits>
 
 using namespace std;
 
@@ -39,18 +40,23 @@ class Table {
 
 class Table {
 
+
  map<unsigned, map<unsigned,double> > nodeTotalMap;
  map<unsigned, unsigned> forwardingTable;
+
 
  unsigned thisNodeNumber;
 
  public:
  Table();
  void tableInit(unsigned nodeNumber);
- void setMap(map<unsigned, map<unsigned,double> > thisMap);
+ void updateSingleEntry(unsigned neighborNumber, unsigned nodeNumber, double newValue);
  bool updateMap(unsigned mapNumber, map<unsigned,double> nodeMap);
+
  void updateForwardingTable();
- map<unsigned, map<unsigned,double> > getMap();
+ bool updateVectorsThroughNeighbor(unsigned neighborNumber);
+ void addRowIfNotExists(unsigned rowNumber);
+
  unsigned getNodePath(unsigned destNode);
  ostream & Print(ostream &os) const;
 };

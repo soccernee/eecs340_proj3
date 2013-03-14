@@ -40,40 +40,72 @@ void Table::tableInit(unsigned nodeNumber) {
  bool Table::updateMap(unsigned mapNumber, map<unsigned,double> nodeMap){
     cerr << "Table: updateVector" << endl;
 
+    cerr << "Updating neighbor " << mapNumber << "'s row in table" << endl;
     if(nodeTotalMap.find(mapNumber) != nodeTotalMap.end()) {
+        cerr << "Deleting neighbor " << mapNumber << "'s current row in table" << endl;
         nodeTotalMap.erase(mapNumber);
     }
+    cerr << "Inserting new row in table" << endl;
     nodeTotalMap.insert(make_pair(mapNumber, nodeMap));
 
-    bool ourDistanceVectorHasBeenUpdated = false;
+    return updateVectorsThroughNeighbor(mapNumber);
+ }
 
-    map<unsigned,map<unsigned,double> >::iterator ourDistanceVector = nodeTotalMap.find(mapNumber);
-
-    double distanceFromUsToNewNode = ourDistanceVector->second.find(mapNumber)->second;
-
-    for (map<unsigned,double>::iterator iter = nodeMap.begin(); iter != nodeMap.end(); iter++) {
-
-        double distanceFromNewNodeToDestination = nodeMap.find(iter->first)->second;
-
-        double newDistance = distanceFromUsToNewNode + distanceFromNewNodeToDestination;
-
-        if(newDistance < iter->second) {
-            //We have a new distance vector for node iter->first
-            map<unsigned, double>::iterator ourDistanceVectorToDest = ourDistanceVector->second.find(iter->first);
-
-            //If the destination is not currently in the table, insert it
-            if(ourDistanceVectorToDest == ourDistanceVector->second.end()) {
-                ourDistanceVector->second.insert(make_pair(iter->first, newDistance));
-            } else {
-                ourDistanceVector->second.find(iter->first)->second = newDistance;
-            }
-            ourDistanceVectorHasBeenUpdated = true;
-            //Also update forwarding table
-        }
+  void Table::addRowIfNotExists(unsigned rowNumber) {
+    if(nodeTotalMap.find(rowNumber) == nodeTotalMap.end()) {
+      cerr << "Creating new row in table with index " << rowNumber << endl;
+      map<unsigned, double> newRow;
+      nodeTotalMap.insert(make_pair(rowNumber, newRow));
     }
 
+  }
+ bool Table::updateVectorsThroughNeighbor(unsigned neighborNumber) {
+  cerr << "Updating my row through neighbor " << neighborNumber << endl;
+   bool ourDistanceVectorHasBeenUpdated = false;
+
+
+   map<unsigned,map<unsigned,double> >::iterator ourDistanceVector = nodeTotalMap.find(thisNodeNumber);
+   map<unsigned, map<unsigned, double>>::iterator neighborDistanceVector = nodeTotalMap.find(neighborNumber);
+
+
+   double distanceFromUsToNeighbor = ourDistanceVector->second.find(thisNodeNumber)->second;
+    cerr << "Distance from me to neighbor " << distanceFromUsToNeighbor << endl;
+   for (map<unsigned,double>::iterator iter = neighborDistanceVector->second.begin(); iter != neighborDistanceVector->second.end(); iter++) {
+      cerr << "Updating my vector for destination " << iter.first << endl;
+
+
+      double distanceFromNewNodeToDestination = iter->second;
+      cerr << "Distance from neighbor to destination " << distanceFromNewNodeToDestination << endl;
+
+
+      double newDistance = distanceFromUsToNewNode + distanceFromNewNodeToDestination;
+
+      cerr << "Distance from me to destination via neighbor" << newDistance << endl;
+
+      double oldDistance = numeric_limits<double>::infinity();
+      double ourCurrentDistanceToDestInTable = ourDistanceVector->second.find(iter->first);
+      if(ourCurrentDistanceToDestInTable != ourDistanceVector->second.end()) {
+        oldDistance = ourCurrentDistanceToDestInTable->second;
+      }
+
+      cerr << "Old distance from me to destination" << oldDistance;
+
+      if(newDistance < oldDistance) {
+          //We have a new distance vector for node iter->first
+          cerr << "Vector through neighbor " << neighborNumber << " is less than current distance, updating my row" << endl;
+          //If the destination is not currently in the table, insert it
+          if(ourCurrentDistanceToDestInTable == ourDistanceVector->second.end()) {
+              cerr << "This is a new entry in my routing table row" << endl;
+              ourDistanceVector->second.insert(make_pair(iter->first, newDistance));
+          } else {
+                cerr << "Updating current entry in my routing table row" << endl;
+              ourCurrentDistanceToDestInTable->second = newDistance;
+          }
+          ourDistanceVectorHasBeenUpdated = true;
+          //Also update forwarding table
+      }
+    }
     updateForwardingTable();
-    cerr << "done with UpdateVector" << endl;
     return ourDistanceVectorHasBeenUpdated;
  }
 
@@ -105,10 +137,18 @@ void Table::tableInit(unsigned nodeNumber) {
         }//end of for loop that iterates through each node in network
  } //end of functoin updateForwardingTable
 
- map<unsigned, map<unsigned,double> > Table::getMap(){
-    map<unsigned, map<unsigned,double> > tempMap = nodeTotalMap;
-    return tempMap;
- }
+ //Returns true if the entry is new
+bool Table::updateSingleEntry(unsigned neighborNumber, unsigned nodeNumber, double newValue) {
+  map<unsigned, map<unsigned, double>>::iterator rowToUpdate = nodeTotalMap.find(neighborNumber);
+  map<unsigned, double>::iterator nodeToUpdate = rowToUpdate->second.find(nodeNumber);
+  if(nodeToUpdate == rowToUpdate->second.end()) {
+    rowToUpdate->second.insert(make_pair(nodeNumber, newValue));
+    return true;
+  } else {
+    nodeToUpdate->second = newValue;
+    return false;
+  }
+}
 
  unsigned Table::getNodePath(unsigned destNode) {
 
@@ -118,7 +158,7 @@ void Table::tableInit(unsigned nodeNumber) {
 /*
     unsigned nextNode;
     cerr << "Get Node Path" << endl;
-    double shortPath = 100000; //needs to be replaced with infinity
+    double shortPath = numeric_limits<double>::infinity();
     double distanceToFirstNode;
     double distanceFromFirstToSecond;
     for ( map<unsigned, map<unsigned,double> >::iterator iter = nodeTotalMap.begin(); iter != nodeTotalMap.end(); iter++) {
@@ -128,7 +168,7 @@ void Table::tableInit(unsigned nodeNumber) {
             distanceFromFirstToSecond = (iter->second.find(destNode))->second;
         }
         else {
-            distanceFromFirstToSecond = 100000; //needs to be replaced with infinity
+            distanceFromFirstToSecond = numeric_limits<double>::infinity();
         }
 
         if ((distanceToFirstNode + distanceFromFirstToSecond) < shortPath) {
@@ -137,12 +177,12 @@ void Table::tableInit(unsigned nodeNumber) {
         }
     }
 
-    cerr << "nextNode = " << nextNode << endl;;
+    cerr << "nextNode = " << nextNode << endl;
     return nextNode;
 */
  }
 
-ostream & Table::Print(ostream &os) const
+ostream &Table::Print(ostream &os) const
 {
   // WRITE THIS
   os << "Routing Table()" << endl;
