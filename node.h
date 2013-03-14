@@ -54,7 +54,7 @@ class Node {
 // students will add protocol-specific data here
   private:
   Table *thisNodeTable;
-  virtual void sendRoutingUpdate() const;
+  virtual void sendRoutingUpdate() ;
 
   public:
   virtual void setTable (Table *tbl);
@@ -90,8 +90,8 @@ class Node {
   virtual void SetBW(const double b);
   virtual double GetBW() const;
 
-  virtual void SendToNeighbors(const RoutingMessage *m);
-  virtual void SendToNeighbor(const Node *n, const RoutingMessage *m);
+  virtual void SendToNeighbors( RoutingMessage *m);
+  virtual void SendToNeighbor( Node *n,  RoutingMessage *m);
   virtual deque<Node*> *GetNeighbors();
   virtual void SetTimeOut(const double timefromnow);
 

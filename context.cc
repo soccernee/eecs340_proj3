@@ -14,9 +14,9 @@ SimulationContext::~SimulationContext()
 
 void SimulationContext::LoadEvents(const string &file)
 {
-  
+
   FILE *in = fopen(file.c_str(),"r");
-  if (in==0) { 
+  if (in==0) {
     cerr << "Can't read events from "<<file<<endl;
     exit(-1);
   }
@@ -34,7 +34,7 @@ void SimulationContext::LoadEvents(const string &file)
     if (strlen(buf)==0){
 	continue;
     }
-    while (isspace(*buf)) { 
+    while (isspace(*buf)) {
       buf++;
     }
     if (*buf==0) {
@@ -114,10 +114,10 @@ void SimulationContext::LoadEvents(const string &file)
       char *start;
       char *data = new char [1024];
       start=strstr(buf,"PRINT")+5;
-      while (*start!=0 && isspace(*start)) { 
+      while (*start!=0 && isspace(*start)) {
 	start++;
       }
-      if (*start==0) { 
+      if (*start==0) {
 	strncpy(data,"Nothing to print!",1024);
       } else {
 	strncpy(data,start,1024);
@@ -131,8 +131,8 @@ void SimulationContext::LoadEvents(const string &file)
 
 void SimulationContext::Init()
 {
-    for (deque<Link*>::const_iterator i=links.begin();i!=links.end();++i) { 
-	PostEvent(new Event(0x80000000, CHANGE_LINK,this,new Link(**i)));
+    for (deque<Link*>::const_iterator i=links.begin();i!=links.end();++i) {
+	PostEvent(new Event(-100, CHANGE_LINK,this,new Link(**i)));
     }
 }
 
@@ -140,7 +140,7 @@ void SimulationContext::LoadTopology(const string &file)
 {
   LoadEvents(file);
   Event *e;
-  while ((e=GetEarliestEvent())) { 
+  while ((e=GetEarliestEvent())) {
     e->Dispatch();
     e->Disassociate();
     delete e;
@@ -184,13 +184,13 @@ void SimulationContext::WriteShortestPathTreeDot(const Node *src, const string &
 {
   cerr << "********BEGIN WRITE TREE"<<endl;
   FILE *out = fopen(s.c_str(),"w");
-  if (out==0) { 
+  if (out==0) {
     return;
-  } 
+  }
   // Yes, this is hideously slow
   map<Link, int, link_eq> treelinks;
   deque<Link> path;
-  for (deque<Node*>::const_iterator i=nodes.begin();i!=nodes.end();++i) { 
+  for (deque<Node*>::const_iterator i=nodes.begin();i!=nodes.end();++i) {
     path.clear();
     CollectPathLinks(*src,**i,path);
     for (deque<Link>::const_iterator j=path.begin();j!=path.end();++j) {
@@ -214,13 +214,13 @@ void SimulationContext::WriteShortestPathTreeDot(const Node *src, const string &
     Link l = (*i).first;
     fprintf(out,"%u -> %u [ color=red ];\n",l.GetSrc(),l.GetDest());
     bool found=false;
-    for (deque<Link>::const_iterator j=realtree.begin(); j!=realtree.end();++j) { 
-      if ((*j).GetSrc()==l.GetSrc() && (*j).GetDest()==l.GetDest()) { 
+    for (deque<Link>::const_iterator j=realtree.begin(); j!=realtree.end();++j) {
+      if ((*j).GetSrc()==l.GetSrc() && (*j).GetDest()==l.GetDest()) {
 	found=true;
 	break;
       }
     }
-    if (!found) { 
+    if (!found) {
       cout << "SUSPICIOUS: "<<l.GetSrc()<<" -> "<<l.GetDest()<<" not found in actual shortest paths tree"<<endl;
     }
   }
@@ -233,9 +233,9 @@ void SimulationContext::WritePathDot(const Node &src, const Node &dest, const st
 {
   cerr << "********BEGIN WRITE PATH"<<endl;
   FILE *out = fopen(s.c_str(),"w");
-  if (out==0) { 
+  if (out==0) {
     return;
-  } 
+  }
   deque<Link> path;
   CollectPathLinks(src,dest,path);
   deque<Link> realpath;
@@ -254,13 +254,13 @@ void SimulationContext::WritePathDot(const Node &src, const Node &dest, const st
     fprintf(out,"%u -> %u [ color=red ];\n",(*i).GetSrc(),(*i).GetDest());
     Link l =(*i);
     bool found=false;
-    for (deque<Link>::const_iterator j=realpath.begin(); j!=realpath.end();++j) { 
-      if ((*j).GetSrc()==l.GetSrc() && (*j).GetDest()==l.GetDest()) { 
+    for (deque<Link>::const_iterator j=realpath.begin(); j!=realpath.end();++j) {
+      if ((*j).GetSrc()==l.GetSrc() && (*j).GetDest()==l.GetDest()) {
 	found=true;
 	break;
       }
     }
-    if (!found) { 
+    if (!found) {
       cout << "SUSPICIOUS: "<<l.GetSrc()<<" -> "<<l.GetDest()<<" not found in actual shortest paths tree"<<endl;
     }
   }
@@ -280,7 +280,7 @@ void SimulationContext::DrawPath(const Link *p) const
 void SimulationContext::CollectPathLinks(const Node &src, const Node &dest, deque<Link> &path) const
 {
   Node *n=((SimulationContext*)this)->FindMatchingNode(&src);
-  if (n==0) { 
+  if (n==0) {
     return;
   }
   unsigned last=n->GetNumber();
@@ -305,7 +305,7 @@ void SimulationContext::CollectPathLinks(const Node &src, const Node &dest, dequ
       break;
     }
   }
- 
+
 }
 
 
@@ -322,7 +322,7 @@ void SimulationContext::TimeOut(const Node *src, const double timefromnow)
 		      FindMatchingNode(src),
 		      0));
 }
-		      
+
 
 void SimulationContext::SendToNeighbors(const Node *src, const RoutingMessage *m)
 {
@@ -345,4 +345,4 @@ void SimulationContext::SendToNeighbor(const Node *src, const Node *dest, const 
 		      FindMatchingNode(dest),
 		      (void*)m));
 }
-					 
+

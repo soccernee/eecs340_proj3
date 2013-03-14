@@ -32,7 +32,10 @@ RoutingMessage::RoutingMessage(const RoutingMessage &rhs) {
 
 ostream &RoutingMessage::Print(ostream &os) const
 {
-  os << "Routing message from node " << sourceNodeNumber << " containing row " << newTableRow;
+  os << "Routing message from node " << sourceNodeNumber;
+  for(map<unsigned, double>::const_iterator i = newTableRow.begin(); i != newTableRow.end(); i++) {
+    os << " DestNode" << i->first << ": " << i->second << ";";
+  }
   return os;
 }
 
@@ -45,6 +48,11 @@ RoutingMessage::RoutingMessage() {
 RoutingMessage::RoutingMessage(const RoutingMessage &rhs) {
   sourceNodeNumber = rhs.sourceNodeNumber;
   newTableRow = rhs.newTableRow;
+}
+
+RoutingMessage::RoutingMessage (unsigned sourceNodeNumber, map<unsigned, double> newTableRow) {
+  this->sourceNodeNumber = sourceNodeNumber;
+  this->newTableRow = newTableRow;
 }
 
 #endif

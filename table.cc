@@ -33,9 +33,7 @@ void Table::tableInit(unsigned nodeNumber) {
     thisNodeNumber = nodeNumber;
 }
 
- void Table::setMap(map<unsigned, map<unsigned,double> > thisMap) {
-    nodeTotalMap = thisMap;
- }
+
 
  bool Table::updateMap(unsigned mapNumber, map<unsigned,double> nodeMap){
     cerr << "Table: updateVector" << endl;
@@ -65,25 +63,25 @@ void Table::tableInit(unsigned nodeNumber) {
 
 
    map<unsigned,map<unsigned,double> >::iterator ourDistanceVector = nodeTotalMap.find(thisNodeNumber);
-   map<unsigned, map<unsigned, double>>::iterator neighborDistanceVector = nodeTotalMap.find(neighborNumber);
+   map<unsigned, map<unsigned, double> >::iterator neighborDistanceVector = nodeTotalMap.find(neighborNumber);
 
 
    double distanceFromUsToNeighbor = ourDistanceVector->second.find(thisNodeNumber)->second;
     cerr << "Distance from me to neighbor " << distanceFromUsToNeighbor << endl;
    for (map<unsigned,double>::iterator iter = neighborDistanceVector->second.begin(); iter != neighborDistanceVector->second.end(); iter++) {
-      cerr << "Updating my vector for destination " << iter.first << endl;
+      cerr << "Updating my vector for destination " << iter->first << endl;
 
 
       double distanceFromNewNodeToDestination = iter->second;
       cerr << "Distance from neighbor to destination " << distanceFromNewNodeToDestination << endl;
 
 
-      double newDistance = distanceFromUsToNewNode + distanceFromNewNodeToDestination;
+      double newDistance = distanceFromUsToNeighbor + distanceFromNewNodeToDestination;
 
       cerr << "Distance from me to destination via neighbor" << newDistance << endl;
 
       double oldDistance = numeric_limits<double>::infinity();
-      double ourCurrentDistanceToDestInTable = ourDistanceVector->second.find(iter->first);
+      map<unsigned, double>::iterator ourCurrentDistanceToDestInTable = ourDistanceVector->second.find(iter->first);
       if(ourCurrentDistanceToDestInTable != ourDistanceVector->second.end()) {
         oldDistance = ourCurrentDistanceToDestInTable->second;
       }
@@ -146,7 +144,7 @@ void Table::tableInit(unsigned nodeNumber) {
 
  //Returns true if the entry is new
 bool Table::updateSingleEntry(unsigned neighborNumber, unsigned nodeNumber, double newValue) {
-  map<unsigned, map<unsigned, double>>::iterator rowToUpdate = nodeTotalMap.find(neighborNumber);
+  map<unsigned, map<unsigned, double> >::iterator rowToUpdate = nodeTotalMap.find(neighborNumber);
   map<unsigned, double>::iterator nodeToUpdate = rowToUpdate->second.find(nodeNumber);
   if(nodeToUpdate == rowToUpdate->second.end()) {
     rowToUpdate->second.insert(make_pair(nodeNumber, newValue));
@@ -188,6 +186,10 @@ bool Table::updateSingleEntry(unsigned neighborNumber, unsigned nodeNumber, doub
     return nextNode;
 */
  }
+
+map<unsigned, double> Table::getRow(unsigned rowNumber) {
+  return nodeTotalMap.find(rowNumber)->second;
+}
 
 ostream &Table::Print(ostream &os) const
 {
