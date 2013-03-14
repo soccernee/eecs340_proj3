@@ -198,7 +198,6 @@ void Node::TimeOut()
   cerr << *this << " got a timeout: ignored"<<endl;
 }
 
-
 Node *Node::GetNextHop(const Node *destination) {
     unsigned nextNode = thisNodeTable->getNodePath(destination->GetNumber());
     deque<Node *> * neighbors = GetNeighbors();
