@@ -43,11 +43,13 @@ private:
 
  map<unsigned, map<unsigned,double> > nodeTotalMap;
  map<unsigned, unsigned> forwardingTable;
+ map<unsigned, double> linkCostTable;
+
  unsigned thisNodeNumber;
 
  public:
  Table(unsigned nodeNumber);
- bool updateSingleEntry(unsigned neighborNumber, unsigned nodeNumber, double newValue);
+ bool addOrUpdateNeighbor(unsigned neighborNumber, double linkCost);
  bool updateMap(unsigned mapNumber, map<unsigned,double> nodeMap);
  void updateForwardingTable();
  bool updateVectorsThroughNeighbor(unsigned neighborNumber);

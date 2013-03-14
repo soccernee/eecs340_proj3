@@ -11,12 +11,12 @@ Topology::Topology()
 Topology::~Topology()
 {
   for (deque<Node*>::iterator i=nodes.begin();
-	   i!=nodes.end(); ++i) { 
+	   i!=nodes.end(); ++i) {
     delete *i;
   }
   nodes.clear();
   for (deque<Link*>::iterator i=links.begin();
-	   i!=links.end(); ++i) { 
+	   i!=links.end(); ++i) {
     delete *i;
   }
   links.clear();
@@ -25,7 +25,7 @@ Topology::~Topology()
 deque<Node*>::iterator Topology::FindMatchingNodeIt(const Node *n)
 {
   for (deque<Node*>::iterator i=nodes.begin();
-	   i!=nodes.end(); ++i) { 
+	   i!=nodes.end(); ++i) {
     if ((**i).Matches(*n)) {
       return i;
     }
@@ -36,9 +36,9 @@ deque<Node*>::iterator Topology::FindMatchingNodeIt(const Node *n)
 Node * Topology::FindMatchingNode(const Node *n)
 {
   deque<Node*>::iterator i=FindMatchingNodeIt(n);
-  if (i!=nodes.end()) { 
+  if (i!=nodes.end()) {
     return *i;
-  } else { 
+  } else {
     return 0;
   }
 }
@@ -49,8 +49,8 @@ deque<Link*> * Topology::GetOutgoingLinks(const Node *src)
   deque<Link*> *out = new deque<Link*>;
 
   for (deque<Link*>::iterator i=links.begin();
-	   i!=links.end(); ++i) { 
-    if ((*i)->GetSrc()==src->GetNumber()) { 
+	   i!=links.end(); ++i) {
+    if ((*i)->GetSrc()==src->GetNumber()) {
       out->push_back(*i);
     }
   }
@@ -63,7 +63,7 @@ deque<Node*> *Topology::GetNeighbors(const Node *n)
   deque<Node*> *nodes = new deque<Node*>;
 
   for (deque<Link*>::iterator i=temp->begin();
-	   i!=temp->end(); ++i) { 
+	   i!=temp->end(); ++i) {
     nodes->push_back(FindMatchingNode(&Node((*i)->GetDest(),0,0,0)));
   }
   return nodes;
@@ -73,7 +73,7 @@ deque<Node*> *Topology::GetNeighbors(const Node *n)
 deque<Link*>::iterator Topology::FindMatchingLinkIt(const Link *l)
 {
   for (deque<Link*>::iterator i=links.begin();
-	   i!=links.end(); ++i) { 
+	   i!=links.end(); ++i) {
     if ((**i).Matches(*l)) {
       return i;
     }
@@ -84,9 +84,9 @@ deque<Link*>::iterator Topology::FindMatchingLinkIt(const Link *l)
 Link *Topology::FindMatchingLink(const Link *l)
 {
   deque<Link*>::iterator i=FindMatchingLinkIt(l);
-  if (i!=links.end()) { 
+  if (i!=links.end()) {
     return *i;
-  } else { 
+  } else {
     return 0;
   }
 }
@@ -99,11 +99,11 @@ void Topology::AddNode(Node *n)
     nodes.push_back(n);
   }
 }
-  
+
 void Topology::DeleteNode(const Node *n)
 {
   deque<Node*>::iterator i=FindMatchingNodeIt(n);
-  if (i!=nodes.end()) { 
+  if (i!=nodes.end()) {
     delete *i;
     nodes.erase(i);
   }
@@ -112,12 +112,12 @@ void Topology::DeleteNode(const Node *n)
 void Topology::ChangeNode(const Node *n)
 {
   deque<Node*>::iterator i=FindMatchingNodeIt(n);
-  if (i!=nodes.end()) { 
+  if (i!=nodes.end()) {
     **i=*n;
   }
 }
 
-void Topology::AddLink(Link *l) 
+void Topology::AddLink(Link *l)
 {
   if (FindMatchingLink(l)) {
     ChangeLink(l);
@@ -129,7 +129,7 @@ void Topology::AddLink(Link *l)
 void Topology::DeleteLink(const Link *l)
 {
   deque<Link*>::iterator i=FindMatchingLinkIt(l);
-  if (i!=links.end()) { 
+  if (i!=links.end()) {
     delete *i;
     links.erase(i);
   }
@@ -139,19 +139,19 @@ void Topology::DeleteLink(const Link *l)
 void Topology::ChangeLink(const Link *l)
 {
   deque<Link*>::iterator i=FindMatchingLinkIt(l);
-  if (i!=links.end()) { 
+  if (i!=links.end()) {
     **i=*l;
   }
   Node *n=FindMatchingNode(&Node(l->GetSrc(),0,0,0));
   n->LinkHasBeenUpdated(l);
 }
 
-void Topology::WriteDot(const string &n) const 
+void Topology::WriteDot(const string &n) const
 {
   FILE *out = fopen(n.c_str(),"w");
-  if (out==0) { 
+  if (out==0) {
     return;
-  } 
+  }
   fprintf(out,"digraph topo {\n");
   for (deque<Node*>::const_iterator i=nodes.begin(); i!=nodes.end();++i) {
     fprintf(out,"%u\n",(*i)->GetNumber());
@@ -178,13 +178,13 @@ ostream &Topology::Print(ostream &os) const
   os << "Topology(nodes={";
   for (deque<Node*>::const_iterator i=nodes.begin();
        i!=nodes.end();
-       ++i) { 
+       ++i) {
     os << **i <<",";
   }
   os <<"}, links={";
   for (deque<Link*>::const_iterator i=links.begin();
        i!=links.end();
-       ++i) { 
+       ++i) {
     os << **i <<",";
   }
   os <<"})";
@@ -196,13 +196,13 @@ ostream &Topology::Print(ostream &os) const
 //
 // This is totally disgusting
 //
-void Topology::CollectShortestPathTreeLinks(const Node &src, deque<Link> &links) 
+void Topology::CollectShortestPathTreeLinks(const Node &src, deque<Link> &links)
 {
   vector<double> distance(nodes.size());
   vector<unsigned>    pred(nodes.size());
   deque<unsigned> visited;
   deque<unsigned> unvisited;
- 
+
 
   for (deque<Node*>::const_iterator i=nodes.begin();i!=nodes.end();++i) {
     unvisited.push_back((**i).GetNumber());
@@ -213,13 +213,13 @@ void Topology::CollectShortestPathTreeLinks(const Node &src, deque<Link> &links)
       distance[(**i).GetNumber()]=0;
     }
   }
-  
+
   while (unvisited.size()>0) {
     double curmin=100e99;
     deque<unsigned>::iterator c;
     unsigned closest;
-    for (deque<unsigned>::iterator i=unvisited.begin(); i!=unvisited.end();++i) { 
-      if (distance[*i]<curmin) { 
+    for (deque<unsigned>::iterator i=unvisited.begin(); i!=unvisited.end();++i) {
+      if (distance[*i]<curmin) {
 	curmin=distance[*i];
 	c=i;
       }
@@ -227,14 +227,14 @@ void Topology::CollectShortestPathTreeLinks(const Node &src, deque<Link> &links)
     closest=*c;
     unvisited.erase(c);
     visited.push_back(closest);
-    if (closest!=src.GetNumber()) { 
+    if (closest!=src.GetNumber()) {
       links.push_back(Link(pred[closest],closest,0,0,0));
     }
     deque<Link*> *adj= GetOutgoingLinks(FindMatchingNode(&Node(closest,0,0,0)));
     for (deque<Link*>::const_iterator i=adj->begin();i!=adj->end();++i) {
       unsigned dest=(**i).GetDest();
       double dist=(**i).GetLatency();
-      if (dist<distance[dest]) { 
+      if (dist<distance[dest]) {
 	distance[dest]=dist;
 	pred[dest]=closest;
       }
@@ -243,7 +243,7 @@ void Topology::CollectShortestPathTreeLinks(const Node &src, deque<Link> &links)
   }
 }
 
-void Topology::CollectShortestPathLinks(const Node &src, const Node &dest, deque<Link> &links) 
+void Topology::CollectShortestPathLinks(const Node &src, const Node &dest, deque<Link> &links)
 {
   CollectShortestPathTreeLinks(src,links);
 }

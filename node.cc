@@ -6,7 +6,12 @@
 Node::Node(const unsigned n, SimulationContext *c, double b, double l) :
     number(n), context(c), bw(b), lat(l)
 {
-    cerr << "Creating node " << number << endl;
+
+    if(context == NULL) {
+      cerr << "Creating Node with no context" << endl;
+    } else {
+      cerr << "Creating node " << number << endl;
+    }
 
     #if defined(DISTANCEVECTOR)
     thisNodeTable = new Table(number);
@@ -17,10 +22,13 @@ Node::Node()
 { throw GeneralException(); }
 
 Node::Node(const Node &rhs) :
-  number(rhs.number), context(rhs.context), bw(rhs.bw), lat(rhs.lat) {}
+  number(rhs.number), context(rhs.context), bw(rhs.bw), lat(rhs.lat) {
+    cerr << "Creating node with copy constructor" << endl;
+  }
 
 Node & Node::operator=(const Node &rhs)
 {
+  cerr << "Creating node using equality operator" << endl;
   return *(new(this)Node(rhs));
 }
 
@@ -48,6 +56,7 @@ Node::~Node()
 // Implement these functions  to post an event to the event queue in the event simulator
 // so that the corresponding node can recieve the ROUTING_MESSAGE_ARRIVAL event at the proper time
 void Node::SendToNeighbors( RoutingMessage *m) {
+  cerr << "Send message from node " << number << " to all neighbors" << endl;
   deque<Node *> * neighbors = GetNeighbors();
   for(deque<Node *>::iterator i = neighbors->begin(); i != neighbors->end(); i++) {
     SendToNeighbor(*i, m);
@@ -55,6 +64,7 @@ void Node::SendToNeighbors( RoutingMessage *m) {
 }
 
 void Node::SendToNeighbor( Node *n,  RoutingMessage *m) {
+  cerr << "Send message from node " << number << " to neighbor " << n->GetNumber() << endl;
   Link toMatch;
   toMatch.SetSrc(number);
   toMatch.SetDest(n->GetNumber());
@@ -175,10 +185,8 @@ void Node::setTable (Table *tbl) {
 
 void Node::LinkHasBeenUpdated(const Link *l)
 {
-  cerr << "Updating link " << *l << endl;
-  bool isLinkChanged = thisNodeTable->updateSingleEntry(number, l->GetDest(), l->GetLatency());
-  thisNodeTable->addRowIfNotExists(l->GetDest());
-  thisNodeTable->updateVectorsThroughNeighbor(l->GetDest());
+  cerr << "Link updated in node " << number << " link " << *l << endl;
+  bool isLinkChanged = thisNodeTable->addOrUpdateNeighbor(l->GetDest(), l->GetLatency());
   if(isLinkChanged) {
     sendRoutingUpdate();
   }
@@ -187,8 +195,10 @@ void Node::LinkHasBeenUpdated(const Link *l)
 
 
 void Node::ProcessIncomingRoutingMessage(const RoutingMessage *m) {
+  cerr << "Procesing incoming routing message in node " << number << " from node " << m->sourceNodeNumber << endl;
     bool updated = thisNodeTable->updateMap(m->sourceNodeNumber, m->newTableRow);
     if(updated) {
+      cerr << "Node " << number << "'s routing table was updated, sending update to neighbors" << endl;
       sendRoutingUpdate();
     }
 }
@@ -199,6 +209,7 @@ void Node::TimeOut()
 }
 
 Node *Node::GetNextHop(const Node *destination) {
+    cerr << "Getting next hop to destination " << *destination << " from node " << number << endl;
     unsigned nextNode = thisNodeTable->getNodePath(destination->GetNumber());
     deque<Node *> * neighbors = GetNeighbors();
     for(deque<Node *>::iterator i = neighbors->begin(); i != neighbors->end(); i++) {
@@ -217,6 +228,7 @@ Table *Node::GetRoutingTable() const
 }
 
 void Node::sendRoutingUpdate()  {
+  cerr << "Sending routing update from node " << number << endl;
   RoutingMessage * message = new RoutingMessage(number, thisNodeTable->getRow(number));
   SendToNeighbors(message);
 }
