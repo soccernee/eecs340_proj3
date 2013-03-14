@@ -50,7 +50,7 @@ class Table {
  public:
  Table();
  void tableInit(unsigned nodeNumber);
- void updateSingleEntry(unsigned neighborNumber, unsigned nodeNumber, double newValue);
+ bool updateSingleEntry(unsigned neighborNumber, unsigned nodeNumber, double newValue);
  bool updateMap(unsigned mapNumber, map<unsigned,double> nodeMap);
 
  void updateForwardingTable();

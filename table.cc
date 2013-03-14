@@ -59,6 +59,8 @@ void Table::tableInit(unsigned nodeNumber) {
     }
 
   }
+
+
  bool Table::updateVectorsThroughNeighbor(unsigned neighborNumber) {
   cerr << "Updating my row through neighbor " << neighborNumber << endl;
    bool ourDistanceVectorHasBeenUpdated = false;

@@ -209,8 +209,8 @@ Node *Node::GetNextHop(const Node *destination)
     //now that we know the nextHop node number, we must find that node
     deque<Node*> * neighbors = GetNeighbors();
     for (deque<Node*>::iterator i = neighbors->begin(); i != neighbors->end(); i++) {
-        if ((*iter)->GetNumber() == nextNodeNumber) {
-            cerr << "GetNextHop: next node = " << **iter << endl;
+        if ((*i)->GetNumber() == nextNodeNumber) {
+            cerr << "GetNextHop: next node = " << **i << endl;
             return *i;
         }
     }
