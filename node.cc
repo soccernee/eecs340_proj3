@@ -178,6 +178,7 @@ void Node::LinkHasBeenUpdated(const Link *l)
   cerr << "Updating link " << *l << endl;
   bool isLinkChanged = thisNodeTable->updateSingleEntry(number, l->GetDest, l->GetLatency());
   thisNodeTable->addRowIfNotExists(l->GetDest);
+  thisNodeTable->updateVectorsThroughNeighbor(l->GetDest);
   if(isLinkChanged) {
     sendRoutingUpdate();
   }
