@@ -21,19 +21,19 @@ ostream & Table::Print(ostream &os) const
 
 #if defined(DISTANCEVECTOR)
 
-Table::Table() {
-    cerr << "table constructor" << endl;
-}
+Table::Table(unsigned nodeNumber) {
+    cerr << "table constructor" << endl;\
 
-void Table::tableInit(unsigned nodeNumber) {
-    cerr << "table init" << endl;
     map<unsigned,double> initMap;
-    initMap.insert(make_pair(nodeNumber,0));
-    nodeTotalMap.insert (pair<unsigned,map<unsigned,double> >(nodeNumber, initMap));
+    initMap.insert(make_pair(nodeNumber,0.0));
+    cerr << "inserted into initmap" << endl;
+
+
+    nodeTotalMap.insert(make_pair(nodeNumber, initMap));
+    cerr << "inserted into nodetotalmap" << endl;
     thisNodeNumber = nodeNumber;
+    cerr << "table init done" << endl;
 }
-
-
 
  bool Table::updateMap(unsigned mapNumber, map<unsigned,double> nodeMap){
     cerr << "Table: updateVector" << endl;

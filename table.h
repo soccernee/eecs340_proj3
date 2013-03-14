@@ -39,17 +39,14 @@ class Table {
 #include <iterator>
 
 class Table {
-
+private:
 
  map<unsigned, map<unsigned,double> > nodeTotalMap;
  map<unsigned, unsigned> forwardingTable;
-
-
  unsigned thisNodeNumber;
 
  public:
- Table();
- void tableInit(unsigned nodeNumber);
+ Table(unsigned nodeNumber);
  bool updateSingleEntry(unsigned neighborNumber, unsigned nodeNumber, double newValue);
  bool updateMap(unsigned mapNumber, map<unsigned,double> nodeMap);
  void updateForwardingTable();
