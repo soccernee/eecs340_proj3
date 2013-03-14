@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <stdlib.h>
+#include <limits>
 
 using namespace std;
 
@@ -45,7 +46,9 @@ class Table {
  Table();
  void tableInit();
  void setMap(map<unsigned, map<unsigned,double> > thisMap);
+ void getRow(unsigned rowNumber);
  void updateMap(unsigned mapNumber, map<unsigned,double> thisNodeMap);
+ void updateSingleEntry(unsigned neighborNumber, unsigned nodeNumber, double newValue);
  map<unsigned, map<unsigned,double> > getMap();
  unsigned getNodePath(unsigned destNode);
  ostream & Print(ostream &os) const;

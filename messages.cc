@@ -21,8 +21,9 @@ RoutingMessage::RoutingMessage()
 {}
 
 
-RoutingMessage::RoutingMessage(const RoutingMessage &rhs)
-{}
+RoutingMessage::RoutingMessage(const RoutingMessage &rhs) {
+
+}
 
 #endif
 
@@ -31,15 +32,20 @@ RoutingMessage::RoutingMessage(const RoutingMessage &rhs)
 
 ostream &RoutingMessage::Print(ostream &os) const
 {
+  os << "Routing message from node " << sourceNodeNumber << " containing row " << newTableRow;
   return os;
 }
 
-RoutingMessage::RoutingMessage()
-{}
+
+RoutingMessage::RoutingMessage() {
+
+}
 
 
-RoutingMessage::RoutingMessage(const RoutingMessage &rhs)
-{}
+RoutingMessage::RoutingMessage(const RoutingMessage &rhs) {
+  sourceNodeNumber = rhs.sourceNodeNumber;
+  newTableRow = rhs.newTableRow;
+}
 
 #endif
 

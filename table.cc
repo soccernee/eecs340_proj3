@@ -45,10 +45,14 @@ void Table::tableInit() {
     return tempMap;
  }
 
+ map<unsigned, double> Table::getRow(unsigned rowNumber) {
+   return nodeTotalMap.find(rowNumber)->second;
+ }
+
  unsigned Table::getNodePath(unsigned destNode) {
     unsigned nextNode = 0;
     cerr << "Get Node Path" << endl;
-    double shortPath = 100000; //needs to be replaced with infinity
+    double shortPath = numeric_limits<double>::infinity();
     for ( map<unsigned, map<unsigned,double> >::iterator iter = nodeTotalMap.begin(); iter != nodeTotalMap.end(); iter++) {
         cerr << "inside first loop" << endl;
 
@@ -58,9 +62,13 @@ void Table::tableInit() {
         }
     }
 
-    cerr << "nextNode = " << nextNode << endl;;
+    cerr << "nextNode = " << nextNode << endl;
     return nextNode;
  }
+
+void Table::updateSingleEntry(unsigned neighborNumber, unsigned nodeNumber, double newValue) {
+  nodeTotalMap.find(neighborNumber)->second.find(nodeNumber)->second = newValue;
+}
 
 ostream &Table::Print(ostream &os) const
 {

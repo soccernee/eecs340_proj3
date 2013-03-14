@@ -47,13 +47,20 @@ Node::~Node()
 
 // Implement these functions  to post an event to the event queue in the event simulator
 // so that the corresponding node can recieve the ROUTING_MESSAGE_ARRIVAL event at the proper time
-void Node::SendToNeighbors(const RoutingMessage *m)
-{
+void Node::SendToNeighbors(const RoutingMessage *m) {
+  deque<Node *> * neighbors = GetNeighbors();
+  for(deque<Node *>::iterator i = neighbors.begin(); i != neighbors.end(); i++) {
+    SendToNeighbor(*i, m);
+  }
 }
 
-void Node::SendToNeighbor(const Node *n, const RoutingMessage *m)
-{
-
+void Node::SendToNeighbor(const Node *n, const RoutingMessage *m) {
+  Link toMatch;
+  toMatch.SetSrc(number);
+  toMatch.SetDest(n->GetNumber());
+  Link * matchingLink = context->FindMatchingLink(&toMatch);
+  Event * event = new Event(context->GetTime() + matchingLink->GetLatency(), ROUTING_MESSAGE_ARRIVAL, n, m);
+  context->PostEvent(event);
 }
 
 deque<Node*> *Node::GetNeighbors()
@@ -168,15 +175,17 @@ void Node::setTable (Table *tbl) {
 
 void Node::LinkHasBeenUpdated(const Link *l)
 {
-  // update our table
-  // send out routing mesages
-  cerr << *this<<": Link Update: "<<*l<<endl;
+  thisNodeTable->updateSingleEntry(number, l->GetDest, l->GetLatency());
+  sendRoutingUpdate();
 }
 
 
 void Node::ProcessIncomingRoutingMessage(const RoutingMessage *m)
 {
-
+    boolean updated = thisNodeTable->updateMap(m->sourceNodeNumber, m->newTableRow);
+    if(updated) {
+      sendRoutingUpdate();
+    }
 }
 
 void Node::TimeOut()
@@ -188,16 +197,16 @@ void Node::TimeOut()
 Node *Node::GetNextHop(const Node *destination)
 {
     cerr << "[DISTANCEVECTOR] GetNextHop" << endl;
-    unsigned nodeNum = destination->GetNumber();
-    cerr << "destination node = " << nodeNum << endl;
-    unsigned nextNode = thisNodeTable->getNodePath(nodeNum);
+    unsigned destinationNodeNumber = destination->GetNumber();
+    cerr << "destination node = " << destinationNodeNumber << endl;
+    unsigned nextNodeNumber = thisNodeTable->getNodePath(destinationNodeNumber);
     cerr << "Found out nextNode number" << endl;
     //now that we know the nextHop node number, we must find that node
-    deque<Node*> *neighbors = GetNeighbors();
-    for (deque<Node*>::iterator iter = neighbors->begin(); iter != neighbors->end(); iter++) {
-        if ((**iter).GetNumber() == nextNode) {
+    deque<Node*> * neighbors = GetNeighbors();
+    for (deque<Node*>::iterator i = neighbors->begin(); i != neighbors->end(); i++) {
+        if ((*iter)->GetNumber() == nextNodeNumber) {
             cerr << "GetNextHop: next node = " << **iter << endl;
-            return *iter;
+            return *i;
         }
     }
     //note we should never get down here
@@ -212,6 +221,10 @@ Table *Node::GetRoutingTable() const
     return tempTable;
 }
 
+void Node::sendRoutingUpdate() const {
+  RoutingMessage * message = new RoutingMessage(number, thisNodeTable->getRow(number));
+  SendToNeighbors(message);
+}
 
 ostream & Node::Print(ostream &os) const
 {

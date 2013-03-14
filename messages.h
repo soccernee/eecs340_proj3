@@ -31,6 +31,9 @@ struct RoutingMessage {
   RoutingMessage(const RoutingMessage &rhs);
   RoutingMessage &operator=(const RoutingMessage &rhs);
 
+  unsigned sourceNodeNumber;
+  map<unsigned, double> newTableRow;
+
   ostream & Print(ostream &os) const;
 };
 #endif

@@ -11,9 +11,9 @@ class SimulationContext;
 class Link {
   unsigned src,dest;
   SimulationContext *context;
-  double   bw;
-  double   lat;
-  
+  double   bw; //bandwidth
+  double   lat; //latency
+
 
  public:
   Link(const unsigned s, const unsigned d, SimulationContext *c, double b, double l);
