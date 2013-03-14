@@ -52,13 +52,12 @@ class Table {
  void tableInit(unsigned nodeNumber);
  bool updateSingleEntry(unsigned neighborNumber, unsigned nodeNumber, double newValue);
  bool updateMap(unsigned mapNumber, map<unsigned,double> nodeMap);
-
  void updateForwardingTable();
  bool updateVectorsThroughNeighbor(unsigned neighborNumber);
  void addRowIfNotExists(unsigned rowNumber);
-
  unsigned getNodePath(unsigned destNode);
  ostream & Print(ostream &os) const;
+ map<unsigned, double> getRow(unsigned rowNumber);
 };
 #endif
 

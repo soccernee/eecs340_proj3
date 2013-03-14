@@ -30,6 +30,7 @@ struct RoutingMessage {
   RoutingMessage();
   RoutingMessage(const RoutingMessage &rhs);
   RoutingMessage &operator=(const RoutingMessage &rhs);
+  RoutingMessage (unsigned sourceNodeNumber, map<unsigned, double> newTableRow);
 
   unsigned sourceNodeNumber;
   map<unsigned, double> newTableRow;

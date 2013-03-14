@@ -47,14 +47,14 @@ Node::~Node()
 
 // Implement these functions  to post an event to the event queue in the event simulator
 // so that the corresponding node can recieve the ROUTING_MESSAGE_ARRIVAL event at the proper time
-void Node::SendToNeighbors(const RoutingMessage *m) {
+void Node::SendToNeighbors( RoutingMessage *m) {
   deque<Node *> * neighbors = GetNeighbors();
   for(deque<Node *>::iterator i = neighbors->begin(); i != neighbors->end(); i++) {
     SendToNeighbor(*i, m);
   }
 }
 
-void Node::SendToNeighbor(const Node *n, const RoutingMessage *m) {
+void Node::SendToNeighbor( Node *n,  RoutingMessage *m) {
   Link toMatch;
   toMatch.SetSrc(number);
   toMatch.SetDest(n->GetNumber());
@@ -176,9 +176,9 @@ void Node::setTable (Table *tbl) {
 void Node::LinkHasBeenUpdated(const Link *l)
 {
   cerr << "Updating link " << *l << endl;
-  bool isLinkChanged = thisNodeTable->updateSingleEntry(number, l->GetDest, l->GetLatency());
-  thisNodeTable->addRowIfNotExists(l->GetDest);
-  thisNodeTable->updateVectorsThroughNeighbor(l->GetDest);
+  bool isLinkChanged = thisNodeTable->updateSingleEntry(number, l->GetDest(), l->GetLatency());
+  thisNodeTable->addRowIfNotExists(l->GetDest());
+  thisNodeTable->updateVectorsThroughNeighbor(l->GetDest());
   if(isLinkChanged) {
     sendRoutingUpdate();
   }
@@ -198,25 +198,15 @@ void Node::TimeOut()
   cerr << *this << " got a timeout: ignored"<<endl;
 }
 
-
-Node *Node::GetNextHop(const Node *destination)
-{
-    cerr << "[DISTANCEVECTOR] GetNextHop" << endl;
-    unsigned destinationNodeNumber = destination->GetNumber();
-    cerr << "destination node = " << destinationNodeNumber << endl;
-    unsigned nextNodeNumber = thisNodeTable->getNodePath(destinationNodeNumber);
-    cerr << "Found out nextNode number" << endl;
-    //now that we know the nextHop node number, we must find that node
-    deque<Node*> * neighbors = GetNeighbors();
-    for (deque<Node*>::iterator i = neighbors->begin(); i != neighbors->end(); i++) {
-        if ((*i)->GetNumber() == nextNodeNumber) {
-            cerr << "GetNextHop: next node = " << **i << endl;
-            return *i;
-        }
+Node *Node::GetNextHop(const Node *destination) {
+    unsigned nextNode = thisNodeTable->getNodePath(destination->GetNumber());
+    deque<Node *> * neighbors = GetNeighbors();
+    for(deque<Node *>::iterator i = neighbors->begin(); i != neighbors->end(); i++) {
+      if((*i)->GetNumber() == nextNode) {
+        return *i;
+      }
     }
-    //note we should never get down here
-    cerr << "Trouble. GetNextHop did not find the shortest path to the next hop and, by default, identifies the first neighbor as the shortest path." << endl;
-    return *neighbors->begin();
+    return NULL;
 }
 
 Table *Node::GetRoutingTable() const
@@ -226,7 +216,7 @@ Table *Node::GetRoutingTable() const
     return tempTable;
 }
 
-void Node::sendRoutingUpdate() const {
+void Node::sendRoutingUpdate()  {
   RoutingMessage * message = new RoutingMessage(number, thisNodeTable->getRow(number));
   SendToNeighbors(message);
 }
