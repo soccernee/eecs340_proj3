@@ -91,21 +91,28 @@ void Table::tableInit(unsigned nodeNumber) {
       cerr << "Old distance from me to destination" << oldDistance;
 
       if(newDistance < oldDistance) {
-          //We have a new distance vector for node iter->first
-          cerr << "Vector through neighbor " << neighborNumber << " is less than current distance, updating my row" << endl;
-          //If the destination is not currently in the table, insert it
-          if(ourCurrentDistanceToDestInTable == ourDistanceVector->second.end()) {
-              cerr << "This is a new entry in my routing table row" << endl;
-              ourDistanceVector->second.insert(make_pair(iter->first, newDistance));
-          } else {
-                cerr << "Updating current entry in my routing table row" << endl;
-              ourCurrentDistanceToDestInTable->second = newDistance;
-          }
-          ourDistanceVectorHasBeenUpdated = true;
-          //Also update forwarding table
+        //We have a new distance vector for node iter->first
+        cerr << "Vector through neighbor " << neighborNumber << " is less than current distance, updating my row" << endl;
+        //If the destination is not currently in the table, insert it
+        if(ourCurrentDistanceToDestInTable == ourDistanceVector->second.end()) {
+            cerr << "This is a new entry in my routing table row" << endl;
+            ourDistanceVector->second.insert(make_pair(iter->first, newDistance));
+        } else {
+              cerr << "Updating current entry in my routing table row" << endl;
+            ourCurrentDistanceToDestInTable->second = newDistance;
+        }
+        ourDistanceVectorHasBeenUpdated = true;
+
+        //Also update forwarding table
+        map<unsigned, unsigned>::iterator forwardingTableEntry = forwardingTable.find(iter->first);
+        if(forwardingTableEntry == forwardingTable.end()) {
+          forwardingTable.insert(make_pair(iter->first, neighborNumber));
+        } else {
+          forwardingTableEntry->second = neighborNumber;
+        }
+        cerr << "Updating forwarding table to forward nodes destined to " << iter->first << " via neighboring node " << neighborNumber <<endl;
       }
     }
-    updateForwardingTable();
     return ourDistanceVectorHasBeenUpdated;
  }
 
