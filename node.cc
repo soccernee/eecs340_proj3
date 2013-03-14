@@ -6,7 +6,7 @@
 Node::Node(const unsigned n, SimulationContext *c, double b, double l) :
     number(n), context(c), bw(b), lat(l)
 {
-    cerr << "Node init" << endl;
+    cerr << "Creating node " << number << endl;
 
     #if defined(DISTANCEVECTOR)
     thisNodeTable = new Table(number);

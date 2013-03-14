@@ -108,6 +108,7 @@ Table::Table(unsigned nodeNumber) {
         cerr << "Updating forwarding table to forward nodes destined to " << iter->first << " via neighboring node " << neighborNumber <<endl;
       }
     }
+    cerr << *this << endl;
     return ourDistanceVectorHasBeenUpdated;
  }
 
