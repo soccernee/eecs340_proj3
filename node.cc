@@ -218,10 +218,17 @@ void Node::TimeOut()
 Node *Node::GetNextHop(const Node *destination) {
     cerr << "Getting next hop to destination " << *destination << " from node " << number << endl;
     unsigned nextNode = thisNodeTable->getNodePath(destination->GetNumber());
+    cerr << "Node should send pack to Node " << nextNode << endl;
     deque<Node *> * neighbors = GetNeighbors();
     for(deque<Node *>::iterator i = neighbors->begin(); i != neighbors->end(); i++) {
-      if((*i)->GetNumber() == nextNode) {
-        return *i;
+      cerr << "Neighbor = " << (**i).GetNumber() << endl;
+      if((**i).GetNumber() == nextNode) {
+        cerr << "correctly identified" << endl;
+        Node *tempNode = new Node(**i);
+        cerr << "tempNode successfully created; tempNode = " << *tempNode << endl;
+        cerr << "Address of tempNode = " << tempNode << endl;
+        cerr << "Address of iterator = " << *i << endl;
+        return tempNode;
       }
     }
     return NULL;

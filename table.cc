@@ -199,7 +199,10 @@ bool Table::addOrUpdateNeighbor(unsigned neighborNumber, double linkCost) {
     //If this is a link update
     double oldLinkCost = linkToUpdate->second;
     linkToUpdate->second = linkCost;
-    isLinkCostChanged = oldLinkCost != linkCost;
+    isLinkCostChanged = (oldLinkCost != linkCost);
+
+    nodeTotalMap.find(thisNodeNumber)->second.find(neighborNumber)->second = linkCost;
+    cerr << "UPDATE: new distance vector value from node " <<thisNodeNumber << " to node " << neighborNumber << " is changed to " << ((nodeTotalMap.find(thisNodeNumber))->second.find(neighborNumber))->second << endl;
   }
 
   if(isLinkCostChanged) {
