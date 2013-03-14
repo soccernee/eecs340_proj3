@@ -28,7 +28,7 @@ Table::Table() {
 void Table::tableInit(unsigned nodeNumber) {
     cerr << "table init" << endl;
     map<unsigned,double> initMap;
-    initMap.insert(pair<unsigned, double> (nodeNumber,0));
+    initMap.insert(make_pair(nodeNumber,0));
     nodeTotalMap.insert (pair<unsigned,map<unsigned,double> >(nodeNumber, initMap));
     thisNodeNumber = nodeNumber;
 }
@@ -49,7 +49,7 @@ void Table::tableInit(unsigned nodeNumber) {
 
     map<unsigned,map<unsigned,double> >::iterator ourDistanceVector = nodeTotalMap.find(mapNumber);
 
-    double distanceFromUsToNewNode = ourDistanceVector->map.find(mapNumber)->second;
+    double distanceFromUsToNewNode = ourDistanceVector->second.find(mapNumber)->second;
 
     for (map<unsigned,double>::iterator iter = nodeMap.begin(); iter != nodeMap.end(); iter++) {
 
@@ -72,12 +72,38 @@ void Table::tableInit(unsigned nodeNumber) {
         }
     }
 
-
-
-
+    updateForwardingTable();
     cerr << "done with UpdateVector" << endl;
     return ourDistanceVectorHasBeenUpdated;
  }
+
+ void Table::updateForwardingTable() {
+        forwardingTable.clear();
+        //iterate through each node in network
+        for (map<unsigned, double>::iterator routingTableIter = nodeTotalMap.find(thisNodeNumber)->second.begin(); routingTableIter != nodeTotalMap.find(thisNodeNumber)->second.end(); routingTableIter++) {
+
+                double shortestPath = 10000;
+                unsigned nodeWithShortestPath;
+
+                for (map<unsigned,map<unsigned,double> >::iterator neighborNodeIter = nodeTotalMap.begin(); neighborNodeIter != nodeTotalMap.end(); neighborNodeIter++) {
+
+                    double distanceFromUsToNeighborNode = nodeTotalMap.find(thisNodeNumber)->second.find(neighborNodeIter->first)->second;
+                    double distancefromNeighborNodeToDestNode = (nodeTotalMap.find(neighborNodeIter->first))->second.find(routingTableIter->first)->second;
+                    double totalDistance = distancefromNeighborNodeToDestNode + distanceFromUsToNeighborNode;
+
+                    if(totalDistance < shortestPath) {
+                        shortestPath = totalDistance;
+                        nodeWithShortestPath = neighborNodeIter->first;
+                    }
+
+                }
+
+            forwardingTable.insert(make_pair(routingTableIter->first,nodeWithShortestPath));
+            //first entry: destination Node in network
+            //second entry: neighbor node that packet should be sent to in order to reach the destination Node
+
+        }//end of for loop that iterates through each node in network
+ } //end of functoin updateForwardingTable
 
  map<unsigned, map<unsigned,double> > Table::getMap(){
     map<unsigned, map<unsigned,double> > tempMap = nodeTotalMap;
@@ -85,6 +111,11 @@ void Table::tableInit(unsigned nodeNumber) {
  }
 
  unsigned Table::getNodePath(unsigned destNode) {
+
+    return forwardingTable.find(destNode)->second;
+
+
+/*
     unsigned nextNode;
     cerr << "Get Node Path" << endl;
     double shortPath = 100000; //needs to be replaced with infinity
@@ -108,12 +139,13 @@ void Table::tableInit(unsigned nodeNumber) {
 
     cerr << "nextNode = " << nextNode << endl;;
     return nextNode;
+*/
  }
 
-ostream &Table::Print(ostream &os) const
+ostream & Table::Print(ostream &os) const
 {
   // WRITE THIS
-  os << "Table()" << endl;
+  os << "Routing Table()" << endl;
   os << "=========================" << endl;
   /*
   for ( map<unsigned, map<unsigned,double> >::iterator iter = nodeTotalMap.begin(); iter != nodeTotalMap.end(); iter++) {
@@ -122,10 +154,14 @@ ostream &Table::Print(ostream &os) const
             os << (looper->first) << "=>" << (looper->second) << "   ";
         }
         os << endl;
-
   }
-  */
-  //copy(nodeTotalVector.begin(), nodeTotalVector.end(), ostream_iterator<vector<double> >(os, "\n"));
+
+  os << "===========Forwarding Table============" << endl;
+  for (map<unsigned, unsigned>::iterator forwardingTableIter = forwardingTable.begin(); forwardingTableIter != forwardingTable.end(); forwardingTableIter++) {
+        os << "Dest Node: " << forwardingTableIter->first << "\t Neighbor Node: " << forwardingTableIter->second << endl;
+  }
+  os << endl;
+*/
   return os;
 }
 #endif
