@@ -29,7 +29,7 @@ void Table::tableInit(unsigned nodeNumber) {
     cerr << "table init" << endl;
     map<unsigned,double> initMap;
     initMap.insert(make_pair(nodeNumber,0));
-    nodeTotalMap.insert (pair<unsigned,map<unsigned,double> >(nodeNumber, initMap));
+    nodeTotalMap.insert(make_pair(nodeNumber, initMap));
     thisNodeNumber = nodeNumber;
 }
 
@@ -195,24 +195,21 @@ map<unsigned, double> Table::getRow(unsigned rowNumber) {
 
 ostream &Table::Print(ostream &os) const
 {
-  // WRITE THIS
   os << "Routing Table()" << endl;
   os << "=========================" << endl;
-  /*
-  for ( map<unsigned, map<unsigned,double> >::iterator iter = nodeTotalMap.begin(); iter != nodeTotalMap.end(); iter++) {
+  for ( map<unsigned, map<unsigned,double> >::const_iterator iter = nodeTotalMap.begin(); iter != nodeTotalMap.end(); iter++) {
         os << "Vector Number: " << (iter->first) << " ==   ";
-        for (map<unsigned,double>::iterator looper = iter->second.begin(); looper != iter->second.end();looper++) {
+        for (map<unsigned,double>::const_iterator looper = iter->second.begin(); looper != iter->second.end();looper++) {
             os << (looper->first) << "=>" << (looper->second) << "   ";
         }
         os << endl;
   }
 
   os << "===========Forwarding Table============" << endl;
-  for (map<unsigned, unsigned>::iterator forwardingTableIter = forwardingTable.begin(); forwardingTableIter != forwardingTable.end(); forwardingTableIter++) {
+  for (map<unsigned, unsigned>::const_iterator forwardingTableIter = forwardingTable.begin(); forwardingTableIter != forwardingTable.end(); forwardingTableIter++) {
         os << "Dest Node: " << forwardingTableIter->first << "\t Neighbor Node: " << forwardingTableIter->second << endl;
   }
   os << endl;
-*/
   return os;
 }
 #endif
