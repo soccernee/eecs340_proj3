@@ -25,19 +25,58 @@ Table::Table() {
     cerr << "table constructor" << endl;
 }
 
-void Table::tableInit() {
+void Table::tableInit(unsigned nodeNumber) {
     cerr << "table init" << endl;
-    //nodeTotalMap.insert (std::pair<unsigned,double>(0,7));
+    map<unsigned,double> initMap;
+    initMap.insert(pair<unsigned, double> (nodeNumber,0));
+    nodeTotalMap.insert (pair<unsigned,map<unsigned,double> >(nodeNumber, initMap));
+    thisNodeNumber = nodeNumber;
 }
 
  void Table::setMap(map<unsigned, map<unsigned,double> > thisMap) {
     nodeTotalMap = thisMap;
  }
 
- void Table::updateMap(unsigned mapNumber, map<unsigned,double> thisNodeMap){
+ bool Table::updateMap(unsigned mapNumber, map<unsigned,double> nodeMap){
     cerr << "Table: updateVector" << endl;
-    nodeTotalMap.insert(pair<unsigned,map<unsigned,double> > (mapNumber, thisNodeMap));
+
+    if(nodeTotalMap.find(mapNumber) != nodeTotalMap.end()) {
+        nodeTotalMap.erase(mapNumber);
+    }
+    nodeTotalMap.insert(make_pair(mapNumber, nodeMap));
+
+    bool ourDistanceVectorHasBeenUpdated = false;
+
+    map<unsigned,map<unsigned,double> >::iterator ourDistanceVector = nodeTotalMap.find(mapNumber);
+
+    double distanceFromUsToNewNode = ourDistanceVector->map.find(mapNumber)->second;
+
+    for (map<unsigned,double>::iterator iter = nodeMap.begin(); iter != nodeMap.end(); iter++) {
+
+        double distanceFromNewNodeToDestination = nodeMap.find(iter->first)->second;
+
+        double newDistance = distanceFromUsToNewNode + distanceFromNewNodeToDestination;
+
+        if(newDistance < iter->second) {
+            //We have a new distance vector for node iter->first
+            map<unsigned, double>::iterator ourDistanceVectorToDest = ourDistanceVector->second.find(iter->first);
+
+            //If the destination is not currently in the table, insert it
+            if(ourDistanceVectorToDest == ourDistanceVector->second.end()) {
+                ourDistanceVector->second.insert(make_pair(iter->first, newDistance));
+            } else {
+                ourDistanceVector->second.find(iter->first)->second = newDistance;
+            }
+            ourDistanceVectorHasBeenUpdated = true;
+            //Also update forwarding table
+        }
+    }
+
+
+
+
     cerr << "done with UpdateVector" << endl;
+    return ourDistanceVectorHasBeenUpdated;
  }
 
  map<unsigned, map<unsigned,double> > Table::getMap(){
@@ -46,15 +85,24 @@ void Table::tableInit() {
  }
 
  unsigned Table::getNodePath(unsigned destNode) {
-    unsigned nextNode = 0;
+    unsigned nextNode;
     cerr << "Get Node Path" << endl;
     double shortPath = 100000; //needs to be replaced with infinity
+    double distanceToFirstNode;
+    double distanceFromFirstToSecond;
     for ( map<unsigned, map<unsigned,double> >::iterator iter = nodeTotalMap.begin(); iter != nodeTotalMap.end(); iter++) {
-        cerr << "inside first loop" << endl;
+        cerr << "checking firstnode = " << iter->first << endl;
+        distanceToFirstNode = ((nodeTotalMap.find(thisNodeNumber))->second.find(iter->first))->second;
+        if (iter->second.find(destNode) != iter->second.end()) {
+            distanceFromFirstToSecond = (iter->second.find(destNode))->second;
+        }
+        else {
+            distanceFromFirstToSecond = 100000; //needs to be replaced with infinity
+        }
 
-        if ((iter->second.find(destNode))->second < shortPath) {
+        if ((distanceToFirstNode + distanceFromFirstToSecond) < shortPath) {
             nextNode = iter->first;
-            shortPath = (iter->second.find(destNode))->second;
+            shortPath = (distanceToFirstNode + distanceFromFirstToSecond);
         }
     }
 
@@ -65,20 +113,18 @@ void Table::tableInit() {
 ostream &Table::Print(ostream &os) const
 {
   // WRITE THIS
-
   os << "Table()" << endl;
-/*
-    int i = 0;
-  for (vector<vector<double> >::iterator iter = nodeTotalVector.begin(); iter != nodeTotalVector.end(); iter++) {
-        os << "Vector Number: " << i << endl;
-        int j = 0;
-        for (vector<double>::iterator looper = nodeTotalVector[i].begin(); looper != nodeTotalVector[i].end(); looper++) {
-            os << j << ": latency = " << *looper << endl;
-            j++;
+  os << "=========================" << endl;
+  /*
+  for ( map<unsigned, map<unsigned,double> >::iterator iter = nodeTotalMap.begin(); iter != nodeTotalMap.end(); iter++) {
+        os << "Vector Number: " << (iter->first) << " ==   ";
+        for (map<unsigned,double>::iterator looper = iter->second.begin(); looper != iter->second.end();looper++) {
+            os << (looper->first) << "=>" << (looper->second) << "   ";
         }
-        i++;
+        os << endl;
+
   }
-*/
+  */
   //copy(nodeTotalVector.begin(), nodeTotalVector.end(), ostream_iterator<vector<double> >(os, "\n"));
   return os;
 }

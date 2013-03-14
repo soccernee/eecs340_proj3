@@ -9,7 +9,7 @@ Node::Node(const unsigned n, SimulationContext *c, double b, double l) :
     cerr << "Node init" << endl;
 
     #if defined(DISTANCEVECTOR)
-    thisNodeTable->tableInit();
+    thisNodeTable->tableInit(number);
     #endif
 }
 

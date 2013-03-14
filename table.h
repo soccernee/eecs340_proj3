@@ -40,12 +40,15 @@ class Table {
 class Table {
 
  map<unsigned, map<unsigned,double> > nodeTotalMap;
+ map<unsigned, double> forwardingTable;
+
+ unsigned thisNodeNumber;
 
  public:
  Table();
- void tableInit();
+ void tableInit(unsigned nodeNumber);
  void setMap(map<unsigned, map<unsigned,double> > thisMap);
- void updateMap(unsigned mapNumber, map<unsigned,double> thisNodeMap);
+ bool updateMap(unsigned mapNumber, map<unsigned,double> nodeMap);
  map<unsigned, map<unsigned,double> > getMap();
  unsigned getNodePath(unsigned destNode);
  ostream & Print(ostream &os) const;
