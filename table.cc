@@ -11,10 +11,6 @@ ostream & Table::Print(ostream &os) const
 
 #if defined(LINKSTATE)
 
-ostream & DistancePrevNode::Print(ostream &os) const {
-    os << "" << distance << ":p(" << prevNode << ")";
-    return os;
-}
 
 Table::Table(unsigned nodeNumber) {
     cerr << "table constructor" << endl;
@@ -32,22 +28,24 @@ void Table::updateMap (unsigned neighborNode, map<unsigned,map<unsigned,double> 
         for (map<unsigned, map<unsigned,double> >::iterator iter = connectionsLinksFromNeighbor.begin(); iter!= connectionsLinksFromNeighbor.end(); iter++ ) {
 
             map<unsigned, map<unsigned,double> >::iterator iterMyConnections = connectionsLinks.find(iter->first);
-
-            allNodesInNetwork.insert(iter->first);
+            for (map<unsigned,double>::iterator updateNetworkIter = iter->second.begin(); updateNetworkIter != iter->second.end(); updateNetworkIter++) {
+                    allNodesInNetwork.insert(updateNetworkIter->first);
+            }
 
             if (iterMyConnections == connectionsLinks.end()) {
                 //add this row to the table
-                cerr << "at node:" << thisNodeNumber <<  "adding new row to table for node " << iter->first<< endl;
+                cerr << "at node:" << thisNodeNumber <<  " adding new row to table for node " << iter->first<< endl;
                 connectionsLinks.insert(make_pair(iter->first, iter->second));
             }
-            else {
+            else if (iterMyConnections->first != thisNodeNumber && (iterMyConnections->second.size() < iter->second.size())){
                 //update table with new links
-                cerr << "at node:" << thisNodeNumber <<  "updating row to table for node " << iter->first<< endl;
-                connectionsLinks.erase(iter->first);
+                cerr << "at node:" << thisNodeNumber <<  " updating row to table for node " << iter->first<< endl;
+                connectionsLinks.erase(iterMyConnections);
                 connectionsLinks.insert(make_pair(iter->first, iter->second));
-
             }//end else
         }//end for loop
+        cerr << "end of UpdateMap" << endl;
+        cerr << *this << endl;
 }//end function
 
 void Table::updateLinkCost(unsigned neighborNumber, double linkCost) {
@@ -69,16 +67,91 @@ void Table::updateLinkCost(unsigned neighborNumber, double linkCost) {
 
 void Table::performDijkstraAlgorithm() {
 
+    allNodesInNetwork.erase(thisNodeNumber);
     std::copy(allNodesInNetwork.begin(), allNodesInNetwork.end(),std::inserter( uncalculatedNodes, uncalculatedNodes.begin() ) );
 
+    distanceCalculatedNodes.erase(distanceCalculatedNodes.begin(), distanceCalculatedNodes.end());
+    distanceCalculatedNodes.insert(thisNodeNumber);
+
+    routingTableDistance.erase(routingTableDistance.begin(), routingTableDistance.end());
+    routingTablePrevNode.erase(routingTablePrevNode.begin(), routingTablePrevNode.end());
+
+    double inf = numeric_limits<double>::infinity();
+    for (set<unsigned>::iterator allNodesIter = allNodesInNetwork.begin(); allNodesIter != allNodesInNetwork.end(); allNodesIter++) {
+        map<unsigned,map<unsigned,double> >::iterator connectionIter = connectionsLinks.find(thisNodeNumber);
+        if (connectionIter->second.find(*allNodesIter) != connectionIter->second.end())    {
+            //neighbor node; therefore set distance = link cost
+            routingTableDistance.insert(make_pair(*allNodesIter, connectionIter->second.find(*allNodesIter)->second));
+            routingTablePrevNode.insert(make_pair(*allNodesIter, thisNodeNumber));
+        }
+        else {
+            //non-neighbor node; set distance = infinity
+            routingTableDistance.insert(make_pair(*allNodesIter, inf));
+            routingTablePrevNode.insert(make_pair(*allNodesIter, NULL));
+        }
+    }
 
 
 
+    while (uncalculatedNodes.size() != 0) {
+
+        unsigned nodeShortestDistance = thisNodeNumber;
+        double shortestDistance = numeric_limits<double>::infinity();
+
+        //find shortest path
+        for (set<unsigned>::iterator ii = uncalculatedNodes.begin(); ii != uncalculatedNodes.end(); ii++) {
+
+            double distance = routingTableDistance.find(*ii)->second;
+            if (distance < shortestDistance) {
+                shortestDistance = distance;
+                nodeShortestDistance = *ii;
+            }
+
+        }
+        distanceCalculatedNodes.insert(nodeShortestDistance);
+        uncalculatedNodes.erase(nodeShortestDistance);
+
+        double distanceToShortestNode = routingTableDistance.find(nodeShortestDistance)->second;
+
+        for (map<unsigned,double>::iterator neighborIter = connectionsLinks.find(nodeShortestDistance)->second.begin(); neighborIter != connectionsLinks.find(nodeShortestDistance)->second.end(); neighborIter++) {
+            if (distanceToShortestNode + (neighborIter->second) < routingTableDistance.find(neighborIter->first)->second) {
+                    routingTableDistance.find(neighborIter->first)->second = distanceToShortestNode + neighborIter->second;
+                    routingTablePrevNode.find(neighborIter->first)->second = nodeShortestDistance;
+            }
+        }
+        if (nodeShortestDistance == thisNodeNumber) break;
+
+    }
     cerr << *this << endl;
+    updateForwardingTable();
+}
+
+unsigned Table::findNeighbor(unsigned destNode, unsigned prevNode) {
+    cerr << "find your Neighbor" << endl;
+    cerr << "destNode = " << destNode << endl;
+    cerr << "prevNode = " << prevNode << endl;
+    if (prevNode == thisNodeNumber) {
+        cerr << "return destNode = " << destNode << endl;
+        return destNode;
+    }
+    else return findNeighbor(prevNode, routingTablePrevNode.find(prevNode)->second);
+}
+
+
+void Table::updateForwardingTable() {
+
+    for (map<unsigned,unsigned>::iterator jj = routingTablePrevNode.begin(); jj != routingTablePrevNode.end(); jj++) {
+        unsigned neighbor = findNeighbor(jj->first, jj->second);
+        forwardingTable.insert(make_pair(jj->first, neighbor));
+    }
 }
 
 map<unsigned, map<unsigned,double> > Table::getConnectionsLinks() {
     return connectionsLinks;
+}
+
+unsigned Table::getNodePath(unsigned destNode) {
+    return forwardingTable.find(destNode)->second;
 }
 
 
@@ -97,14 +170,27 @@ ostream & Table::Print(ostream &os) const
   }
 
    os << "===========Routing Table============" << endl;
-  for (map<unsigned, DistancePrevNode>::const_iterator routingTableIter = routingTable.begin(); routingTableIter != routingTable.end(); routingTableIter++) {
-        os << "Node: " << routingTableIter->first << "\t Distance(previousNode): " << routingTableIter->second << endl;
+   map<unsigned,unsigned>::const_iterator routingTablePrevNodeIter;
+  for (map<unsigned, double>::const_iterator routingTableDistanceIter = routingTableDistance.begin(); routingTableDistanceIter != routingTableDistance.end(); routingTableDistanceIter++) {
+        routingTablePrevNodeIter = routingTablePrevNode.find(routingTableDistanceIter->first);
+        if (routingTablePrevNodeIter != routingTablePrevNode.end()) {
+            os << "Node: " << routingTableDistanceIter->first << "\t Distance(previousNode): " << routingTableDistanceIter->second << "(" << routingTablePrevNodeIter->second << ")" <<endl;
+        }
+        else {
+            os << "Node: " << routingTableDistanceIter->first << "\t Distance(previousNode): " << routingTableDistanceIter->second << "(---)" <<endl;
+        }
   }
 
    os << "===========Forwarding Table============" << endl;
   for (map<unsigned, unsigned>::const_iterator forwardingTableIter = forwardingTable.begin(); forwardingTableIter != forwardingTable.end(); forwardingTableIter++) {
         os << "Dest Node: " << forwardingTableIter->first << "\t Neighbor Node: " << forwardingTableIter->second << endl;
   }
+
+    os << "===========All Nodes in Network============" << endl;
+   for (set<unsigned>::const_iterator nodesIter = allNodesInNetwork.begin(); nodesIter != allNodesInNetwork.end(); nodesIter++) {
+        os << "\t" << *nodesIter;
+   }
+   os << endl << endl;;
 
   return os;
 }

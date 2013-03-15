@@ -28,22 +28,19 @@ class Table {
 #include "link.h"
 #include <deque>
 #include <map>
+#include <vector>
+#include <algorithm>
 #include <set>
 #include <iterator>
 
-struct DistancePrevNode {
-    double distance;
-    unsigned prevNode;
-
-    ostream & Print(ostream &os) const;
-};
 
 class Table {
   // Students should write this class
   private:
 
   map<unsigned, map<unsigned,double> > connectionsLinks;
-  map<unsigned, DistancePrevNode>routingTable;
+  map<unsigned, double>routingTableDistance;
+  map<unsigned, unsigned>routingTablePrevNode;
   map<unsigned, unsigned> forwardingTable;
 
   set<unsigned> allNodesInNetwork;
@@ -52,6 +49,9 @@ class Table {
 
   unsigned thisNodeNumber;
 
+  unsigned findNeighbor(unsigned destNode, unsigned prevNode);
+
+
   public:
   Table(unsigned nodeNumber);
   void updateMap (unsigned neighborNode, map<unsigned,map<unsigned,double> >connectionsLinksFromNeighbor);
@@ -59,11 +59,12 @@ class Table {
   void performDijkstraAlgorithm();
   map<unsigned, map<unsigned,double> > getConnectionsLinks();
   unsigned getNodePath(unsigned destNode);
+   void updateForwardingTable();
+
 
   ostream & Print(ostream &os) const;
 };
 
-inline ostream & operator<<(ostream &os, const DistancePrevNode &m) { return m.Print(os);}
 #endif
 
 #if defined(DISTANCEVECTOR)
